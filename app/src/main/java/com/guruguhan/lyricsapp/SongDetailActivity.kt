@@ -10,6 +10,9 @@ class SongDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_detail)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Lyrics"
+
         val title = intent.getStringExtra("title") ?: ""
         val artist = intent.getStringExtra("artist") ?: ""
         val category = intent.getStringExtra("category") ?: ""
@@ -28,5 +31,9 @@ class SongDetailActivity : AppCompatActivity() {
             }
             startActivity(Intent.createChooser(shareIntent, "Share lyrics via"))
         }
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 }

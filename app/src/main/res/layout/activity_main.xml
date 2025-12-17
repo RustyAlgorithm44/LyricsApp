@@ -8,14 +8,17 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingTop="16dp"
+        android:fitsSystemWindows="true">
 
         <EditText
             android:id="@+id/searchInput"
-            android:hint="Search songs..."
+            android:hint="Search for a song..."
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"/>
+            android:padding="16dp"
+            android:layout_marginTop="8dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/songRecyclerView"
