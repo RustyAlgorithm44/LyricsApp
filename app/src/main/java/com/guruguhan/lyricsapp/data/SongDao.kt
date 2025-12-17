@@ -24,4 +24,13 @@ interface SongDao {
     ORDER BY title ASC
 """)
     fun searchSongs(query: String): kotlinx.coroutines.flow.Flow<List<Song>>
+
+    @Query("SELECT COUNT(*) FROM songs")
+    suspend fun getSongCount(): Int
+
+    @Query("SELECT * FROM songs")
+    suspend fun getAllSongsOnce(): List<Song>
+
+    @Query("DELETE FROM songs")
+    suspend fun deleteAll()
 }

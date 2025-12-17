@@ -11,19 +11,19 @@
 
         <EditText
             android:id="@+id/inputTitle"
-            android:hint="Title"
+            android:hint="Song"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <EditText
             android:id="@+id/inputArtist"
-            android:hint="Artist"
+            android:hint="Composer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <EditText
             android:id="@+id/inputCategory"
-            android:hint="Category (genre/mood/language)"
+            android:hint="Category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

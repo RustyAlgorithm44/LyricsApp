@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.guruguhan.lyricsapp.ui.SongAdapter
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
+import android.content.Intent
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,6 +58,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
+            fab.setOnLongClickListener {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
         }
         val searchInput = findViewById<android.widget.EditText>(R.id.searchInput)
 

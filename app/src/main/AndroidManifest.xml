@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LyricsApp">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".SongDetailActivity"
             android:exported="false" />
         <activity
