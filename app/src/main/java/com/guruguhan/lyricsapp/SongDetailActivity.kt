@@ -45,8 +45,19 @@ class SongDetailActivity : AppCompatActivity() {
         }
     }
 
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+        if (event != null) {
+            scaleGestureDetector.onTouchEvent(event)
+            if (scaleGestureDetector.isInProgress) {
+                return true
+            }
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        scaleGestureDetector.onTouchEvent(event)
+        // This method is less critical now that dispatchTouchEvent is overridden,
+        // but keeping it for completeness or if other touch handling is needed.
         return super.onTouchEvent(event)
     }
 
