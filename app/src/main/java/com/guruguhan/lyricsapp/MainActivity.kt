@@ -1,59 +1,62 @@
 package com.guruguhan.lyricsapp
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import com.guruguhan.lyricsapp.databinding.ActivityMainBinding
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.guruguhan.lyricsapp.ui.SongAdapter
+import com.guruguhan.lyricsapp.viewmodel.SongViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: SongAdapter
+    private val viewModel: SongViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        adapter = SongAdapter()
 
-        setSupportActionBar(binding.toolbar)
+        val recyclerView =
+            findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        // 🔑 Collect Flow properly
+        lifecycleScope.launch {
+            viewModel.allSongs.collect { songs ->
+                adapter.submitList(songs)
+            }
         }
-    }
+        val fab = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(
+            R.id.addSongFab
+        )
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
+        fab.setOnClickListener {
+            val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+            val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
+            val artistInput = dialogView.findViewById<android.widget.EditText>(R.id.inputArtist)
+            val categoryInput = dialogView.findViewById<android.widget.EditText>(R.id.inputCategory)
+            val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
+
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Add Song")
+                .setView(dialogView)
+                .setPositiveButton("Save") { _, _ ->
+                    val song = com.guruguhan.lyricsapp.data.Song(
+                        title = titleInput.text.toString(),
+                        artist = artistInput.text.toString(),
+                        category = categoryInput.text.toString(),
+                        lyrics = lyricsInput.text.toString()
+                    )
+                    viewModel.insert(song)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 }
