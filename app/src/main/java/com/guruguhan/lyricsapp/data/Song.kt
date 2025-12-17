@@ -10,5 +10,6 @@ data class Song(
     val title: String,
     val artist: String,
     val category: String,
-    val lyrics: String
+    val lyrics: String,
+    val youtubeLink: String? = null
 )

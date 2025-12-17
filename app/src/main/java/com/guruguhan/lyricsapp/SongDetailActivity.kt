@@ -2,9 +2,16 @@ package com.guruguhan.lyricsapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ScaleGestureDetector
+import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
 
 class SongDetailActivity : AppCompatActivity() {
+
+    private lateinit var scaleGestureDetector: ScaleGestureDetector
+    private var currentScaleFactor = 1.0f
+    private var originalTextSize: Float = 0f
+    private lateinit var detailLyricsTextView: android.widget.TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +28,12 @@ class SongDetailActivity : AppCompatActivity() {
         findViewById<android.widget.TextView>(R.id.detailTitle).text = title
         findViewById<android.widget.TextView>(R.id.detailArtist).text = artist
         findViewById<android.widget.TextView>(R.id.detailCategory).text = category
-        findViewById<android.widget.TextView>(R.id.detailLyrics).text = lyrics
+
+        detailLyricsTextView = findViewById(R.id.detailLyrics)
+        detailLyricsTextView.text = lyrics
+        originalTextSize = detailLyricsTextView.textSize / resources.displayMetrics.scaledDensity
+
+        scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
 
         findViewById<android.widget.Button>(R.id.shareButton).setOnClickListener {
             val shareText = "$title – $artist\n\n$lyrics"
@@ -32,8 +44,24 @@ class SongDetailActivity : AppCompatActivity() {
             startActivity(Intent.createChooser(shareIntent, "Share lyrics via"))
         }
     }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        scaleGestureDetector.onTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
+    }
+
+    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            currentScaleFactor *= detector.scaleFactor
+            // Limit the zoom in/out
+            currentScaleFactor = Math.max(0.5f, Math.min(currentScaleFactor, 3.0f))
+            detailLyricsTextView.textSize = originalTextSize * currentScaleFactor
+            return true
+        }
     }
 }

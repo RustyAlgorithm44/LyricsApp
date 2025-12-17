@@ -19,6 +19,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = getString(R.string.app_name)
+
+        toolbar.setNavigationOnClickListener {
+            android.widget.Toast.makeText(this, "Hamburger menu clicked!", android.widget.Toast.LENGTH_SHORT).show()
+            // Here you would typically open a navigation drawer
+        }
+
         adapter = SongAdapter()
 
         val recyclerView =
@@ -43,18 +52,34 @@ class MainActivity : AppCompatActivity() {
             val artistInput = dialogView.findViewById<android.widget.EditText>(R.id.inputArtist)
             val categoryInput = dialogView.findViewById<android.widget.EditText>(R.id.inputCategory)
             val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
+            val youtubeLinkInput = dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
 
             androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Add Song")
                 .setView(dialogView)
                 .setPositiveButton("Save") { _, _ ->
-                    val song = com.guruguhan.lyricsapp.data.Song(
-                        title = titleInput.text.toString(),
-                        artist = artistInput.text.toString(),
-                        category = categoryInput.text.toString(),
-                        lyrics = lyricsInput.text.toString()
-                    )
-                    viewModel.insert(song)
+                    val title = titleInput.text.toString().trim()
+                    val artist = artistInput.text.toString().trim()
+                    val category = categoryInput.text.toString().trim()
+                    val lyrics = lyricsInput.text.toString().trim()
+                    val youtubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
+
+                    if (title.isBlank() || lyrics.isBlank()) {
+                        android.widget.Toast.makeText(
+                            this,
+                            "Song title and lyrics are required!",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        val song = com.guruguhan.lyricsapp.data.Song(
+                            title = title,
+                            artist = artist,
+                            category = category,
+                            lyrics = lyrics,
+                            youtubeLink = youtubeLink
+                        )
+                        viewModel.insert(song)
+                    }
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
@@ -78,4 +103,8 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
     }
+}
+
+fun String.nullIfBlank(): String? {
+    return if (this.isBlank()) null else this
 }

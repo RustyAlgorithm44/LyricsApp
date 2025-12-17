@@ -35,5 +35,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+        <EditText
+            android:id="@+id/inputYoutubeLink"
+            android:hint="YouTube Link (Optional)"
+            android:inputType="textUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
     </LinearLayout>
 </ScrollView>

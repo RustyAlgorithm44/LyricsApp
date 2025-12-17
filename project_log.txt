@@ -10,12 +10,12 @@ The LyricsApp is an Android application designed to help users store, manage, an
 
 **Architecture Summary:**
 The application follows an MVVM architectural pattern using Kotlin, Room Persistence Library, ViewModel, and LiveData/Flow.
-*   **Model:** `Song.kt` defines the data structure for a song. `AppDatabase.kt` (not fully analyzed yet) and `SongDao.kt` (not fully analyzed yet) handle the database interactions. `SongRepository.kt` acts as an abstraction layer for data access.
-*   **View:** `MainActivity.kt` and its associated layout (`activity_main.xml`), along with `SongAdapter.kt` and `item_song.xml`, are responsible for displaying the song list and handling user input. `SongDetailActivity.kt` and `SettingsActivity.kt` are present but not fully implemented/analyzed.
+*   **Model:** `Song.kt` defines the data structure for a song. `AppDatabase.kt` and `SongDao.kt` handle the database interactions. `SongRepository.kt` acts as an abstraction layer for data access.
+*   **View:** `MainActivity.kt` and its associated layout (`activity_main.xml`), along with `SongAdapter.kt` and `item_song.xml`, are responsible for displaying the song list and handling user input. `SongDetailActivity.kt` and `SettingsActivity.kt` are present but not fully implemented.
 *   **ViewModel:** `SongViewModel.kt` prepares and manages data for the UI.
 
 **Identified Architectural Inconsistency:**
-The `SongViewModel` directly accesses `SongDao` for read operations (searching and getting all songs), bypassing the `SongRepository`. For a more robust and maintainable architecture, the `ViewModel` should *always* communicate exclusively with the `Repository` for data access. The `Repository` should encapsulate all data sources (e.g., Room database, network, etc.).
+The `SongViewModel` directly accesses `SongDao` for read operations (searching and getting all songs), bypassing the `SongRepository`. For a more robust and maintainable architecture, the `ViewModel` should *always* communicate exclusively with the `Repository` for data access.
 
 **Key Files/Components:**
 *   `app/src/main/java/com/guruguhan/lyricsapp/MainActivity.kt`: Main entry point, handles UI setup and interactions.
@@ -23,13 +23,25 @@ The `SongViewModel` directly accesses `SongDao` for read operations (searching a
 *   `app/src/main/java/com/guruguhan/lyricsapp/data/SongRepository.kt`: Abstraction layer for data operations.
 *   `app/src/main/java/com/guruguhan/lyricsapp/data/Song.kt`: Data class for a song entity.
 *   `app/src/main/java/com/guruguhan/lyricsapp/ui/SongAdapter.kt`: Adapts song data for display in a RecyclerView.
-*   `app/src/main/java/com/guruguhan/lyricsapp/SongDetailActivity.kt`: Intended for displaying individual song details.
+*   `app/src/main/java/com/guruguhan/lyricsapp/SongDetailActivity.kt`: Displays individual song details.
 *   `app/src/main/java/com/guruguhan/lyricsapp/SettingsActivity.kt`: Intended for application settings.
 *   `app/src/main/java/com/guruguhan/lyricsapp/backup/BackupManager.kt`: Hint at backup functionality.
 
-**To-Do / Areas for Improvement:**
-1.  **Refactor `SongViewModel`:** Modify `SongViewModel.kt` to exclusively use `SongRepository.kt` for all data operations (read and write), ensuring a consistent MVVM architecture.
-2.  **Implement `SongDetailActivity`:** Develop the UI and logic for `SongDetailActivity.kt` to properly display the title and full lyrics of a selected song.
+**Completed Tasks (from user "To do" list):**
+*   **Input Validation:** Added validation to prevent adding new songs with blank titles or lyrics.
+*   **Home Page UI:**
+    *   Added a heading menu (Toolbar) with a hamburger icon and the app name as the title.
+    *   Positioned the search bar below the heading menu.
+*   **YouTube Link:**
+    *   Added a "youtubeLink" field to the `Song` data model.
+    *   Updated the database schema to version 2.
+    *   Added an input field for the YouTube link in the "Add Song" dialog.
+    *   Updated the logic to save the YouTube link when a new song is added.
+*   **Pinch Zoom Lyrics:** An initial implementation was added. However, the user reported that it's not working. This will be reinvestigated and fixed.
+
+**Current To-Do / Areas for Improvement:**
+1.  **Fix Pinch Zoom Lyrics:** The pinch-to-zoom feature in `SongDetailActivity` is not working as expected and needs to be fixed.
+2.  **Refactor `SongViewModel`:** Modify `SongViewModel.kt` to exclusively use `SongRepository.kt` for all data operations (read and write), ensuring a consistent MVVM architecture.
 3.  **Implement `SettingsActivity`:** Develop the UI and logic for `SettingsActivity.kt`. Consider integrating backup/restore functionality using `BackupManager.kt`.
 4.  **Complete Data Layer Analysis/Implementation:** Fully analyze and ensure proper implementation of `AppDatabase.kt` and `SongDao.kt`.
 5.  **Add Edit/Delete Functionality:** Implement the ability to edit and delete existing songs.
@@ -42,9 +54,3 @@ The `SongViewModel` directly accesses `SongDao` for read operations (searching a
 9.  **Further Features:** Consider adding features like sharing lyrics, categorizing songs, or importing lyrics from external sources.
 
 This log file summarizes the current state and outlines potential next steps.
-
-To do:
-while adding new song it shouldn't accept blank values atleast for in fre required fields
-in home page, heading menu should be there, and search bar should come below that.
-The heading should have a small hamburger on the left. and beside the hamburger, show the current page title. if home page, it should show the app name.
-Adding reference youtube video link also when adding a song
