@@ -1,0 +1,50 @@
+LyricsApp Project Log
+
+**Overview:**
+The LyricsApp is an Android application designed to help users store, manage, and view song lyrics. It utilizes a standard MVVM (Model-View-ViewModel) architecture with Room for local data persistence.
+
+**Current Features:**
+*   **Add Songs:** Users can add new songs with their titles and lyrics.
+*   **Search Songs:** Users can search for existing songs within the stored collection.
+*   **View Song List:** Displays a list of all stored songs.
+
+**Architecture Summary:**
+The application follows an MVVM architectural pattern using Kotlin, Room Persistence Library, ViewModel, and LiveData/Flow.
+*   **Model:** `Song.kt` defines the data structure for a song. `AppDatabase.kt` (not fully analyzed yet) and `SongDao.kt` (not fully analyzed yet) handle the database interactions. `SongRepository.kt` acts as an abstraction layer for data access.
+*   **View:** `MainActivity.kt` and its associated layout (`activity_main.xml`), along with `SongAdapter.kt` and `item_song.xml`, are responsible for displaying the song list and handling user input. `SongDetailActivity.kt` and `SettingsActivity.kt` are present but not fully implemented/analyzed.
+*   **ViewModel:** `SongViewModel.kt` prepares and manages data for the UI.
+
+**Identified Architectural Inconsistency:**
+The `SongViewModel` directly accesses `SongDao` for read operations (searching and getting all songs), bypassing the `SongRepository`. For a more robust and maintainable architecture, the `ViewModel` should *always* communicate exclusively with the `Repository` for data access. The `Repository` should encapsulate all data sources (e.g., Room database, network, etc.).
+
+**Key Files/Components:**
+*   `app/src/main/java/com/guruguhan/lyricsapp/MainActivity.kt`: Main entry point, handles UI setup and interactions.
+*   `app/src/main/java/com/guruguhan/lyricsapp/viewmodel/SongViewModel.kt`: Manages UI-related data and interacts with the data layer.
+*   `app/src/main/java/com/guruguhan/lyricsapp/data/SongRepository.kt`: Abstraction layer for data operations.
+*   `app/src/main/java/com/guruguhan/lyricsapp/data/Song.kt`: Data class for a song entity.
+*   `app/src/main/java/com/guruguhan/lyricsapp/ui/SongAdapter.kt`: Adapts song data for display in a RecyclerView.
+*   `app/src/main/java/com/guruguhan/lyricsapp/SongDetailActivity.kt`: Intended for displaying individual song details.
+*   `app/src/main/java/com/guruguhan/lyricsapp/SettingsActivity.kt`: Intended for application settings.
+*   `app/src/main/java/com/guruguhan/lyricsapp/backup/BackupManager.kt`: Hint at backup functionality.
+
+**To-Do / Areas for Improvement:**
+1.  **Refactor `SongViewModel`:** Modify `SongViewModel.kt` to exclusively use `SongRepository.kt` for all data operations (read and write), ensuring a consistent MVVM architecture.
+2.  **Implement `SongDetailActivity`:** Develop the UI and logic for `SongDetailActivity.kt` to properly display the title and full lyrics of a selected song.
+3.  **Implement `SettingsActivity`:** Develop the UI and logic for `SettingsActivity.kt`. Consider integrating backup/restore functionality using `BackupManager.kt`.
+4.  **Complete Data Layer Analysis/Implementation:** Fully analyze and ensure proper implementation of `AppDatabase.kt` and `SongDao.kt`.
+5.  **Add Edit/Delete Functionality:** Implement the ability to edit and delete existing songs.
+6.  **User Experience Enhancements:**
+    *   Provide feedback to the user on search results (e.g., "No songs found").
+    *   Improve UI for empty states (e.g., "No songs added yet. Tap + to add one.").
+    *   Implement sorting options for the song list (e.g., by title, composer).
+7.  **Testing:** Add comprehensive unit and integration tests for the data layer, ViewModel, and UI components.
+8.  **Error Handling:** Implement robust error handling throughout the application.
+9.  **Further Features:** Consider adding features like sharing lyrics, categorizing songs, or importing lyrics from external sources.
+
+This log file summarizes the current state and outlines potential next steps.
+
+To do:
+while adding new song it shouldn't accept blank values atleast for in fre required fields
+in home page, heading menu should be there, and search bar should come below that.
+The heading should have a small hamburger on the left. and beside the hamburger, show the current page title. if home page, it should show the app name.
+Adding reference youtube video link also when adding a song
