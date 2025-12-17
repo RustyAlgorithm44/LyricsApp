@@ -5,19 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.guruguhan.lyricsapp.R
 import com.guruguhan.lyricsapp.SongDetailActivity
 import com.guruguhan.lyricsapp.data.Song
 
-class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
-
-    private var songs: List<Song> = emptyList()
-
-    fun submitList(list: List<Song>) {
-        songs = list
-        notifyDataSetChanged()
-    }
+class SongAdapter(
+    private val onItemClick: (Song) -> Unit,
+    private val onItemLongClick: (Song) -> Unit
+) : ListAdapter<Song, SongAdapter.SongViewHolder>(SongDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -26,28 +24,46 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        val song = songs[position]
-        holder.title.text = song.title
-        holder.artist.text = song.artist
-        holder.category.text = song.category
-
-        holder.itemView.setOnClickListener {
-            val context = holder.itemView.context
-            val intent = Intent(context, SongDetailActivity::class.java).apply {
-                putExtra("title", song.title)
-                putExtra("artist", song.artist)
-                putExtra("category", song.category)
-                putExtra("lyrics", song.lyrics)
-            }
-            context.startActivity(intent)
-        }
+        val song = getItem(position)
+        holder.bind(song, onItemClick, onItemLongClick)
     }
-
-    override fun getItemCount(): Int = songs.size
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.titleText)
         val artist: TextView = itemView.findViewById(R.id.artistText)
         val category: TextView = itemView.findViewById(R.id.categoryText)
+
+        fun bind(song: Song, onItemClick: (Song) -> Unit, onItemLongClick: (Song) -> Unit) {
+            title.text = song.title
+            artist.text = song.artist
+            category.text = song.category
+
+            itemView.setOnClickListener {
+                // Open SongDetailActivity on item click
+                val context = itemView.context
+                val intent = Intent(context, SongDetailActivity::class.java).apply {
+                    putExtra("title", song.title)
+                    putExtra("artist", song.artist)
+                    putExtra("category", song.category)
+                    putExtra("lyrics", song.lyrics)
+                    putExtra("youtubeLink", song.youtubeLink) // Pass youtubeLink
+                }
+                context.startActivity(intent)
+            }
+            itemView.setOnLongClickListener {
+                onItemLongClick(song)
+                true
+            }
+        }
+    }
+
+    private class SongDiffCallback : DiffUtil.ItemCallback<Song>() {
+        override fun areItemsTheSame(oldItem: Song, newItem: Song): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean {
+            return oldItem == newItem
+        }
     }
 }

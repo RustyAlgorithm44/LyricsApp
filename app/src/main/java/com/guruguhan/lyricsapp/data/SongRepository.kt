@@ -10,6 +10,14 @@ class SongRepository(private val songDao: SongDao) {
         songDao.insert(song)
     }
 
+    suspend fun update(song: Song) {
+        songDao.update(song)
+    }
+
+    suspend fun delete(song: Song) {
+        songDao.delete(song)
+    }
+
     fun search(query: String) =
         songDao.searchSongs(query)
 

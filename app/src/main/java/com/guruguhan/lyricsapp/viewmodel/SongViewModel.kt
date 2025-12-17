@@ -1,6 +1,7 @@
 package com.guruguhan.lyricsapp.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.guruguhan.lyricsapp.data.AppDatabase
@@ -10,22 +11,39 @@ import kotlinx.coroutines.launch
 
 class SongViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var repository: SongRepository
-    val allSongs = AppDatabase
-        .getDatabase(application)
-        .songDao()
-        .getAllSongs()
+    private val repository: SongRepository
 
-    fun search(query: String) =
-        AppDatabase.getDatabase(getApplication())
-            .songDao()
-            .searchSongs(query)
+    val allSongs get() = repository.allSongs
+
     init {
         val songDao = AppDatabase.getDatabase(application).songDao()
         repository = SongRepository(songDao)
     }
 
     fun insert(song: Song) = viewModelScope.launch {
-        repository.insert(song)
+        try {
+            repository.insert(song)
+        } catch (e: Exception) {
+            Log.e("SongViewModel", "Error inserting song: ${e.message}")
+        }
     }
+
+    fun update(song: Song) = viewModelScope.launch {
+        try {
+            repository.update(song)
+        } catch (e: Exception) {
+            Log.e("SongViewModel", "Error updating song: ${e.message}")
+        }
+    }
+
+    fun delete(song: Song) = viewModelScope.launch {
+        try {
+            repository.delete(song)
+        } catch (e: Exception) {
+            Log.e("SongViewModel", "Error deleting song: ${e.message}")
+        }
+    }
+
+    fun search(query: String) =
+        repository.search(query)
 }
