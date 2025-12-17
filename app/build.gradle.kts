@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -50,4 +51,15 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    // RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    // Lifecycle (ViewModel)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
 }
