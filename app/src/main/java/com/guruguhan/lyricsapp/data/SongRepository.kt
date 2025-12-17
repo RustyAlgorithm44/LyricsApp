@@ -9,4 +9,8 @@ class SongRepository(private val songDao: SongDao) {
     suspend fun insert(song: Song) {
         songDao.insert(song)
     }
+
+    fun search(query: String) =
+        songDao.searchSongs(query)
+
 }

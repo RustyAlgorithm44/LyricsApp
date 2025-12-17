@@ -1,11 +1,13 @@
 package com.guruguhan.lyricsapp.ui
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.guruguhan.lyricsapp.R
+import com.guruguhan.lyricsapp.SongDetailActivity
 import com.guruguhan.lyricsapp.data.Song
 
 class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
@@ -28,6 +30,17 @@ class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
         holder.title.text = song.title
         holder.artist.text = song.artist
         holder.category.text = song.category
+
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, SongDetailActivity::class.java).apply {
+                putExtra("title", song.title)
+                putExtra("artist", song.artist)
+                putExtra("category", song.category)
+                putExtra("lyrics", song.lyrics)
+            }
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = songs.size

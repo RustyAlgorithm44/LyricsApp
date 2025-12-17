@@ -16,6 +16,10 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
         .songDao()
         .getAllSongs()
 
+    fun search(query: String) =
+        AppDatabase.getDatabase(getApplication())
+            .songDao()
+            .searchSongs(query)
     init {
         val songDao = AppDatabase.getDatabase(application).songDao()
         repository = SongRepository(songDao)
