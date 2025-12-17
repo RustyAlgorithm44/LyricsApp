@@ -1,8 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.LyricsApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.LyricsApp" parent="Theme.Material3.DayNight">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="windowActionModeOverlay">false</item>
     </style>
 
     <style name="Theme.LyricsApp" parent="Base.Theme.LyricsApp" />

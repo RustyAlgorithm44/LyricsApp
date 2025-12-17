@@ -34,13 +34,8 @@ class MainActivity : AppCompatActivity() {
                 // No action needed here as the adapter itself will start the activity.
             },
             onItemLongClick = { song ->
-                // Handle item long click (activate contextual action mode)
-                if (actionMode == null) {
-                    selectedSong = song
-                    actionMode = startSupportActionMode(actionModeCallback)
-                    true
-                } else {
-                    false
+                if (!isInActionMode) {
+                    startManualActionMode(song)
                 }
             }
         )
@@ -91,6 +86,49 @@ class MainActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+    }
+
+    private var selectedSong: com.guruguhan.lyricsapp.data.Song? = null
+    private var isInActionMode = false
+
+    private fun startManualActionMode(song: com.guruguhan.lyricsapp.data.Song) {
+        isInActionMode = true
+        selectedSong = song
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.menu.clear()
+        toolbar.inflateMenu(R.menu.menu_contextual_action_mode)
+        toolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel)
+        toolbar.setNavigationOnClickListener {
+            endManualActionMode()
+        }
+        toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.action_edit_song -> {
+                    selectedSong?.let { songToEdit -> showEditSongDialog(songToEdit) }
+                    endManualActionMode()
+                    true
+                }
+                R.id.action_delete_song -> {
+                    selectedSong?.let { songToDelete -> showDeleteConfirmationDialog(songToDelete) }
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun endManualActionMode() {
+        isInActionMode = false
+        selectedSong = null
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.menu.clear()
+        toolbar.inflateMenu(R.menu.menu_main)
+        toolbar.setNavigationIcon(R.drawable.ic_menu) // assuming you have ic_menu
+        toolbar.setNavigationOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+        toolbar.setOnMenuItemClickListener(null) // remove the contextual listener
     }
 
     private fun showAddSongDialog() {
@@ -187,46 +225,10 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.delete(song)
                 android.widget.Toast.makeText(this, "'${song.title}' deleted", android.widget.Toast.LENGTH_SHORT).show()
-                actionMode?.finish() // Exit action mode after deletion
+                endManualActionMode() // Exit manual action mode
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private var actionMode: androidx.appcompat.view.ActionMode? = null
-    private var selectedSong: com.guruguhan.lyricsapp.data.Song? = null
-
-    private val actionModeCallback = object : androidx.appcompat.view.ActionMode.Callback {
-        override fun onCreateActionMode(mode: androidx.appcompat.view.ActionMode?, menu: android.view.Menu?): Boolean {
-            mode?.menuInflater?.inflate(R.menu.menu_contextual_action_mode, menu)
-            mode?.title = "Select Action"
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: androidx.appcompat.view.ActionMode?, menu: android.view.Menu?): Boolean {
-            return false // Nothing to do here
-        }
-
-        override fun onActionItemClicked(mode: androidx.appcompat.view.ActionMode?, item: android.view.MenuItem?): Boolean {
-            return when (item?.itemId) {
-                R.id.action_edit_song -> {
-                    selectedSong?.let { showEditSongDialog(it) }
-                    mode?.finish() // Exit action mode
-                    true
-                }
-                R.id.action_delete_song -> {
-                    selectedSong?.let { showDeleteConfirmationDialog(it) }
-                    // Action mode will be finished after delete confirmation
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun onDestroyActionMode(mode: androidx.appcompat.view.ActionMode?) {
-            actionMode = null
-            selectedSong = null
-        }
     }
 
     fun String.nullIfBlank(): String? {
