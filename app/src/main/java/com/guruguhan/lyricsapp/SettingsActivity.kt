@@ -13,6 +13,21 @@ import com.guruguhan.lyricsapp.BuildConfig
 
 class SettingsActivity : AppCompatActivity() {
 
+    private val exportLauncher =
+        registerForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+        ) { uri ->
+            if (uri != null) {
+                lifecycleScope.launch {
+                    val json = BackupManager.exportSongsAsJson(this@SettingsActivity)
+                    contentResolver.openOutputStream(uri)?.use {
+                        it.write(json.toByteArray())
+                    }
+                    Toast.makeText(this@SettingsActivity, "Export successful", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
     private val importLauncher =
         registerForActivityResult(
             androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
@@ -26,6 +41,7 @@ class SettingsActivity : AppCompatActivity() {
 
                     if (json != null) {
                         BackupManager.importSongs(this@SettingsActivity, json)
+                        refreshSongCount()
                         Toast.makeText(
                             this@SettingsActivity,
                             "Import successful",
@@ -42,25 +58,12 @@ class SettingsActivity : AppCompatActivity() {
 
         // Show song count
         lifecycleScope.launch {
-            val count = AppDatabase
-                .getDatabase(this@SettingsActivity)
-                .songDao()
-                .getSongCount()
-
-            findViewById<TextView>(R.id.songCountText)
-                .text = "Total songs: $count"
+            refreshSongCount()
         }
 
         // Export button
         findViewById<Button>(R.id.exportButton).setOnClickListener {
-            lifecycleScope.launch {
-                val file = BackupManager.exportSongs(this@SettingsActivity)
-                Toast.makeText(
-                    this@SettingsActivity,
-                    "Exported to ${file.absolutePath}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            exportLauncher.launch("lyrics_backup.json")
         }
 
         // Import button
@@ -70,5 +73,44 @@ class SettingsActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.versionText)
             .text = "Version ${BuildConfig.VERSION_NAME}"
+
+        // Delete button
+        findViewById<Button>(R.id.deleteAllButton).setOnClickListener {
+
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete all songs?")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete") { _, _ ->
+                    lifecycleScope.launch {
+                        AppDatabase
+                            .getDatabase(this@SettingsActivity)
+                            .songDao()
+                            .deleteAll()
+
+                        refreshSongCount()
+
+                        Toast.makeText(
+                            this@SettingsActivity,
+                            "All songs deleted",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+        lifecycleScope.launch {
+            refreshSongCount()
+        }
+    }
+
+    private suspend fun refreshSongCount() {
+        val count = AppDatabase
+            .getDatabase(this@SettingsActivity)
+            .songDao()
+            .getSongCount()
+
+        findViewById<TextView>(R.id.songCountText)
+            .text = "Total songs: $count"
     }
 }

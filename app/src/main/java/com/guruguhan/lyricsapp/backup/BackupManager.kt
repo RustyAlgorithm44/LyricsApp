@@ -12,11 +12,12 @@ import java.util.Locale
 
 object BackupManager {
 
-    suspend fun exportSongs(context: Context): File {
+    suspend fun exportSongsAsJson(context: Context): String {
         val dao = AppDatabase.getDatabase(context).songDao()
         val songs = dao.getAllSongsOnce()
 
         val jsonArray = JSONArray()
+
         for (song in songs) {
             val obj = JSONObject().apply {
                 put("title", song.title)
@@ -27,12 +28,7 @@ object BackupManager {
             jsonArray.put(obj)
         }
 
-        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
-        val fileName = "lyrics_backup_${sdf.format(Date())}.json"
-        val file = File(context.getExternalFilesDir(null), fileName)
-
-        file.writeText(jsonArray.toString(2))
-        return file
+        return jsonArray.toString(2) // pretty JSON
     }
 
     suspend fun importSongs(context: Context, json: String) {
