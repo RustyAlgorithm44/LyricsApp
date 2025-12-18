@@ -12,7 +12,7 @@ This file lists the tasks that need to be re-implemented after the project was r
 - **UI/UX Enhancements:**
     - [x] Display feedback when no search results are found.
     - [x] Show a message when the song list is empty.
-    - [] Add other placeholder pages like categories or something in hamburger, settings is just one of those pages. and then it should go there. Not like direct click on hamburger goes to settings page.
+    - [x] Add other placeholder pages like categories or something in hamburger, settings is just one of those pages. and then it should go there. Not like direct click on hamburger goes to settings page. Clicking on hamburger should open like a side panel menu.
 
 ### Bug Fixes to Re-apply:
 
