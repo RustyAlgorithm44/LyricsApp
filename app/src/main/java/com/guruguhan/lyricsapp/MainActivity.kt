@@ -18,6 +18,7 @@ import com.google.android.material.navigation.NavigationView
 import com.guruguhan.lyricsapp.ui.GroupAdapter
 import com.guruguhan.lyricsapp.ui.SongAdapter
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
+import android.util.TypedValue
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -60,210 +61,219 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Set hamburger icon color to white
-        toggle.drawerArrowDrawable.color = Color.WHITE
+        val typedValue = TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
+        toggle.drawerArrowDrawable.color = typedValue.data
 
         adapter = SongAdapter(
             onItemClick = { song ->
-                val intent = Intent(this, SongDetailActivity::class.java).apply {
-                    putExtra("title", song.title)
-                    putExtra("composer", song.composer)
-                    putExtra("deity", song.deity)
-                    putExtra("category", song.category)
-                    putExtra("lyrics", song.lyrics)
-                    putExtra("youtubeLink", song.youtubeLink)
+                if (adapter.isInActionMode) {
+                    toggleSelection(song)
+                } else {
+                    val intent = Intent(this, SongDetailActivity::class.java).apply {
+                        putExtra("title", song.title)
+                        putExtra("composer", song.composer)
+                        putExtra("deity", song.deity)
+                        putExtra("category", song.category)
+                        putExtra("lyrics", song.lyrics)
+                        putExtra("youtubeLink", song.youtubeLink)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             },
             onItemLongClick = { song ->
-                if (!isInActionMode) {
+                if (!adapter.isInActionMode) {
                     startManualActionMode(song)
+                } else {
+                    toggleSelection(song)
                 }
             }
         )
 
-        groupAdapter = GroupAdapter { name ->
-            currentFilterValue = name
-            currentViewMode = ViewMode.SONGS_FILTERED
-            // Determine filter type based on previous mode
-            // But wait, if I am in DEITY_LIST, type is DEITY.
-            // I need to know which list I came from.
-            // I can infer from currentViewMode before switching.
-            if (findViewById<com.google.android.material.chip.Chip>(R.id.chipDeity).isChecked) {
-                currentFilterType = "DEITY"
-            } else if (findViewById<com.google.android.material.chip.Chip>(R.id.chipComposer).isChecked) {
-                currentFilterType = "COMPOSER"
-            }
-            updateUI()
-        }
-
-        val recyclerView =
-            findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        // adapter set in updateUI
-
-        val chipGroup = findViewById<ChipGroup>(R.id.chipGroup)
-        chipGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.chipAll -> {
-                    currentViewMode = ViewMode.ALL_SONGS
-                    updateUI()
-                }
-                R.id.chipDeity -> {
-                    currentViewMode = ViewMode.DEITY_LIST
-                    updateUI()
-                }
-                R.id.chipComposer -> {
-                    currentViewMode = ViewMode.COMPOSER_LIST
-                    updateUI()
-                }
-            }
-        }
-
-        updateUI() // Initial UI state
-
-        lifecycleScope.launch {
-            viewModel.errorEvents.collect { message ->
-                Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
-            }
-        }
-
-        val fab =
-            findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(
-                R.id.addSongFab
-            )
-
-        fab.setOnClickListener {
-            showAddSongDialog()
-        }
-
-        val searchInput = findViewById<android.widget.EditText>(R.id.searchInput)
-
-        searchInput.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {
-                // If searching, we might want to temporarily show ALL songs filtered by search, 
-                // or search within the current list.
-                // For simplicity, let's keep search as a global search for now, 
-                // effectively switching to a "Search Result" mode or just filtering the current adapter.
-                // But wait, groupAdapter handles Strings, not Songs.
-                // If I search "Ganesha", do I show Ganesha the deity or songs about Ganesha?
-                // The current search logic in ViewModel returns Songs.
-                // So search should probably switch to a "Search Mode" or just filter songs.
-                // Let's keep it simple: Search implies "All Songs" filtered by query.
-                if (!s.isNullOrBlank()) {
-                    // Switch to All Songs internally? Or just show results.
-                    // Let's force adapter to SongAdapter and show results.
-                    recyclerView.adapter = adapter
-                    observeJob?.cancel()
-                    observeJob = lifecycleScope.launch {
-                        viewModel.search(s.toString()).collect { songs ->
-                            adapter.submitList(songs)
-                            updateEmptyState(songs.isEmpty(), isSearch = true)
+        
+                val recyclerView =
+                    findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
+                recyclerView.layoutManager = LinearLayoutManager(this)
+                // adapter set in updateUI
+        
+                val chipGroup = findViewById<ChipGroup>(R.id.chipGroup)
+                chipGroup.setOnCheckedChangeListener { _, checkedId ->
+                    when (checkedId) {
+                        R.id.chipAll -> {
+                            currentViewMode = ViewMode.ALL_SONGS
+                            updateUI()
+                        }
+                        R.id.chipDeity -> {
+                            currentViewMode = ViewMode.DEITY_LIST
+                            updateUI()
+                        }
+                        R.id.chipComposer -> {
+                            currentViewMode = ViewMode.COMPOSER_LIST
+                            updateUI()
                         }
                     }
-                } else {
-                    // Restore current view mode
-                    updateUI()
                 }
+        
+                updateUI() // Initial UI state
+        
+                lifecycleScope.launch {
+                    viewModel.errorEvents.collect { message ->
+                        Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+                    }
+                }
+        
+                val fab =
+                    findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(
+                        R.id.addSongFab
+                    )
+        
+                fab.setOnClickListener {
+                    showAddSongDialog()
+                }
+        
+                val searchInput = findViewById<android.widget.EditText>(R.id.searchInput)
+        
+                searchInput.addTextChangedListener(object : android.text.TextWatcher {
+                    override fun afterTextChanged(s: android.text.Editable?) {
+                        // If searching, we might want to temporarily show ALL songs filtered by search,
+                        // or search within the current list.
+                        // For simplicity, let's keep search as a global search for now,
+                        // effectively switching to a "Search Result" mode or just filtering the current adapter.
+                        // But wait, groupAdapter handles Strings, not Songs.
+                        // If I search "Ganesha", do I show Ganesha the deity or songs about Ganesha?
+                        // The current search logic in ViewModel returns Songs.
+                        // So search should probably switch to a "Search Mode" or just filter songs.
+                        // Let's keep it simple: Search implies "All Songs" filtered by query.
+                        if (!s.isNullOrBlank()) {
+                            // Switch to All Songs internally? Or just show results.
+                            // Let's force adapter to SongAdapter and show results.
+                            recyclerView.adapter = adapter
+                            observeJob?.cancel()
+                            observeJob = lifecycleScope.launch {
+                                viewModel.search(s.toString()).collect { songs ->
+                                    adapter.submitList(songs)
+                                    updateEmptyState(songs.isEmpty(), isSearch = true)
+                                }
+                            }
+                        } else {
+                            // Restore current view mode
+                            updateUI()
+                        }
+                    }
+        
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                })
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-    }
-
-    private fun updateUI() {
-        val recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
-        observeJob?.cancel()
-
-        when (currentViewMode) {
-            ViewMode.ALL_SONGS -> {
-                recyclerView.adapter = adapter
-                observeJob = lifecycleScope.launch {
-                    viewModel.allSongs.collect { songs ->
-                        adapter.submitList(songs)
-                        updateEmptyState(songs.isEmpty())
+        
+            private fun updateUI() {
+                val recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
+                observeJob?.cancel()
+        
+                when (currentViewMode) {
+                    ViewMode.ALL_SONGS -> {
+                        recyclerView.adapter = adapter
+                        observeJob = lifecycleScope.launch {
+                            viewModel.allSongs.collect { songs ->
+                                adapter.submitList(songs)
+                                updateEmptyState(songs.isEmpty())
+                            }
+                        }
+                    }
+                    ViewMode.DEITY_LIST -> {
+                        recyclerView.adapter = groupAdapter
+                        observeJob = lifecycleScope.launch {
+                            viewModel.uniqueDeities.collect { deities ->
+                                groupAdapter.submitList(deities)
+                                updateEmptyState(deities.isEmpty())
+                            }
+                        }
+                    }
+                    ViewMode.COMPOSER_LIST -> {
+                        recyclerView.adapter = groupAdapter
+                        observeJob = lifecycleScope.launch {
+                            viewModel.uniqueComposers.collect { composers ->
+                                groupAdapter.submitList(composers)
+                                updateEmptyState(composers.isEmpty())
+                            }
+                        }
+                    }
+                    ViewMode.SONGS_FILTERED -> {
+                        recyclerView.adapter = adapter
+                        observeJob = lifecycleScope.launch {
+                            val flow = if (currentFilterType == "DEITY") {
+                                viewModel.getSongsByDeity(currentFilterValue ?: "")
+                            } else {
+                                viewModel.getSongsByComposer(currentFilterValue ?: "")
+                            }
+                            flow.collect { songs ->
+                                adapter.submitList(songs)
+                                updateEmptyState(songs.isEmpty())
+                            }
+                        }
                     }
                 }
             }
-            ViewMode.DEITY_LIST -> {
-                recyclerView.adapter = groupAdapter
-                observeJob = lifecycleScope.launch {
-                    viewModel.uniqueDeities.collect { deities ->
-                        groupAdapter.submitList(deities)
-                        updateEmptyState(deities.isEmpty())
-                    }
-                }
-            }
-            ViewMode.COMPOSER_LIST -> {
-                recyclerView.adapter = groupAdapter
-                observeJob = lifecycleScope.launch {
-                    viewModel.uniqueComposers.collect { composers ->
-                        groupAdapter.submitList(composers)
-                        updateEmptyState(composers.isEmpty())
-                    }
-                }
-            }
-            ViewMode.SONGS_FILTERED -> {
-                recyclerView.adapter = adapter
-                observeJob = lifecycleScope.launch {
-                    val flow = if (currentFilterType == "DEITY") {
-                        viewModel.getSongsByDeity(currentFilterValue ?: "")
+        
+            private fun updateEmptyState(isEmpty: Boolean, isSearch: Boolean = false) {
+                val emptyText = findViewById<android.widget.TextView>(R.id.emptyStateTextView)
+                val noSearchText = findViewById<android.widget.TextView>(R.id.noSearchResultsTextView)
+        
+                if (isEmpty) {
+                    if (isSearch) {
+                        noSearchText.visibility = android.view.View.VISIBLE
+                        emptyText.visibility = android.view.View.GONE
                     } else {
-                        viewModel.getSongsByComposer(currentFilterValue ?: "")
+                        emptyText.visibility = android.view.View.VISIBLE
+                        emptyText.text = if (currentViewMode == ViewMode.ALL_SONGS) "No songs yet. Tap '+' to add one!" else "No items found."
+                        noSearchText.visibility = android.view.View.GONE
                     }
-                    flow.collect { songs ->
-                        adapter.submitList(songs)
-                        updateEmptyState(songs.isEmpty())
-                    }
+                } else {
+                    emptyText.visibility = android.view.View.GONE
+                    noSearchText.visibility = android.view.View.GONE
                 }
             }
-        }
-    }
-
-    private fun updateEmptyState(isEmpty: Boolean, isSearch: Boolean = false) {
-        val emptyText = findViewById<android.widget.TextView>(R.id.emptyStateTextView)
-        val noSearchText = findViewById<android.widget.TextView>(R.id.noSearchResultsTextView)
-
-        if (isEmpty) {
-            if (isSearch) {
-                noSearchText.visibility = android.view.View.VISIBLE
-                emptyText.visibility = android.view.View.GONE
-            } else {
-                emptyText.visibility = android.view.View.VISIBLE
-                emptyText.text = if (currentViewMode == ViewMode.ALL_SONGS) "No songs yet. Tap '+' to add one!" else "No items found."
-                noSearchText.visibility = android.view.View.GONE
+        
+            override fun onNavigationItemSelected(item: MenuItem): Boolean {
+                when (item.itemId) {
+                    R.id.nav_settings -> {
+                        val intent = Intent(this, SettingsActivity::class.java)
+                        startActivity(intent)
+                    }
+                    R.id.nav_categories -> {
+                        Toast.makeText(this, "Categories coming soon!", Toast.LENGTH_SHORT).show()
+                    }
+                    R.id.nav_share -> {
+                        Toast.makeText(this, "Share coming soon!", Toast.LENGTH_SHORT).show()
+                    }
+                    R.id.nav_send -> {
+                        Toast.makeText(this, "Send coming soon!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                drawerLayout.closeDrawer(GravityCompat.START)
+                return true
             }
-        } else {
-            emptyText.visibility = android.view.View.GONE
-            noSearchText.visibility = android.view.View.GONE
-        }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+        
+            private fun toggleSelection(song: com.guruguhan.lyricsapp.data.Song) {
+                adapter.toggleSelection(song)
+                val position = adapter.currentList.indexOf(song)
+                if (position != -1) {
+                    adapter.notifyItemChanged(position)
+                }
+        
+                val count = adapter.selectedSongs.size
+                if (count == 0) {
+                    endManualActionMode()
+                } else {
+                    val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+                    toolbar.title = "$count selected"
+                    toolbar.menu.findItem(R.id.action_edit_song)?.isVisible = count == 1
+                }
             }
-            R.id.nav_categories -> {
-                Toast.makeText(this, "Categories coming soon!", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_share -> {
-                Toast.makeText(this, "Share coming soon!", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_send -> {
-                Toast.makeText(this, "Send coming soon!", Toast.LENGTH_SHORT).show()
-            }
-        }
-        drawerLayout.closeDrawer(GravityCompat.START)
-        return true
-    }
-
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
-        } else if (isInActionMode) {
+        } else if (adapter.isInActionMode) {
             endManualActionMode()
         } else if (currentViewMode == ViewMode.SONGS_FILTERED) {
             // Go back to the list (Deity or Composer)
@@ -283,50 +293,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private var selectedSong: com.guruguhan.lyricsapp.data.Song? = null
-    private var isInActionMode = false
-
     private fun startManualActionMode(song: com.guruguhan.lyricsapp.data.Song) {
-        isInActionMode = true
-        selectedSong = song
+        adapter.isInActionMode = true
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         toolbar.menu.clear()
         toolbar.inflateMenu(R.menu.menu_contextual_action_mode)
-        drawerLayout.removeDrawerListener(toggle) // Remove toggle
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Show back button
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        toggle.isDrawerIndicatorEnabled = false
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationIcon(R.drawable.ic_close)
-        toolbar.navigationIcon?.setTint(Color.WHITE)
-        toolbar.setNavigationOnClickListener {
-            endManualActionMode()
-        }
+        toolbar.setNavigationOnClickListener { endManualActionMode() }
+
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_edit_song -> {
-                    selectedSong?.let { songToEdit -> showEditSongDialog(songToEdit) }
-                    endManualActionMode()
+                    if (adapter.selectedSongs.size == 1) {
+                        showEditSongDialog(adapter.selectedSongs.first())
+                    }
                     true
                 }
                 R.id.action_delete_song -> {
-                    selectedSong?.let { songToDelete -> showDeleteConfirmationDialog(songToDelete) }
+                    showDeleteConfirmationDialog(adapter.selectedSongs.toList())
                     true
                 }
                 else -> false
             }
         }
+        toggleSelection(song)
     }
 
     private fun endManualActionMode() {
-        isInActionMode = false
-        selectedSong = null
+        adapter.isInActionMode = false
+        adapter.selectedSongs.clear()
+        adapter.notifyDataSetChanged()
+
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.title = getString(R.string.app_name)
         toolbar.menu.clear()
         toolbar.inflateMenu(R.menu.menu_main)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false) // Hide back button
-        drawerLayout.addDrawerListener(toggle) // Re-add toggle
-        toggle.syncState() // Sync the state to show the hamburger icon
-        toggle.drawerArrowDrawable.color = Color.WHITE // Re-set hamburger icon color to white
-        toolbar.setNavigationOnClickListener(toggle.toolbarNavigationClickListener) // Restore toggle's listener
-        toolbar.setOnMenuItemClickListener(null)
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        toggle.isDrawerIndicatorEnabled = true
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        toggle.syncState()
+        toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
     }
 
     private fun showAddSongDialog() {
@@ -384,7 +393,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
 
-        // Pre-fill with existing song data
         titleInput.setText(song.title)
         composerInput.setText(song.composer)
         deityInput.setText(song.deity)
@@ -419,24 +427,43 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         youtubeLink = updatedYoutubeLink
                     )
                     viewModel.update(updatedSong)
+                    endManualActionMode()
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun showDeleteConfirmationDialog(song: com.guruguhan.lyricsapp.data.Song) {
+    override fun onResume() {
+        super.onResume()
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        for (i in 0 until navigationView.menu.size()) {
+            navigationView.menu.getItem(i).isChecked = false
+        }
+    }
+
+    private fun showDeleteConfirmationDialog(songs: List<com.guruguhan.lyricsapp.data.Song>) {
+        val message = if (songs.size == 1) {
+            "Are you sure you want to delete '${songs.first().title}'?"
+        } else {
+            "Are you sure you want to delete ${songs.size} songs?"
+        }
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Delete Song")
-            .setMessage("Are you sure you want to delete '${song.title}'?")
+            .setMessage(message)
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.delete(song)
+                songs.forEach { viewModel.delete(it) }
+                val toastMessage = if (songs.size == 1) {
+                    "'${songs.first().title}' deleted"
+                } else {
+                    "${songs.size} songs deleted"
+                }
                 android.widget.Toast.makeText(
                     this,
-                    "'${song.title}' deleted",
+                    toastMessage,
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
-                endManualActionMode() // Exit manual action mode
+                endManualActionMode()
             }
             .setNegativeButton("Cancel", null)
             .show()

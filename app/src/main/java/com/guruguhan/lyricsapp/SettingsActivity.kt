@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -80,14 +81,15 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Set hamburger icon color to white
-        toggle.drawerArrowDrawable.color = Color.WHITE
+        val typedValue = TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
+        toggle.drawerArrowDrawable.color = typedValue.data
 
         // Show song count
         lifecycleScope.launch {
             refreshSongCount()
         }
-
+        
         // Export button
         findViewById<Button>(R.id.exportButton).setOnClickListener {
             exportLauncher.launch("lyrics_backup.json")
@@ -130,7 +132,7 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             refreshSongCount()
         }
     }
-
+    
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_settings -> {

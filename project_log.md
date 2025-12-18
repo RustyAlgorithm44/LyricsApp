@@ -57,13 +57,13 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Material 3 Refinements:**
     *   Enabled Dynamic Color throughout the app for Android 12+ users.
     *   Modernized the "Add Song" dialog by limiting the lyrics field height and making it scrollable.
-
-**Current To-Do / Areas for Improvement:**
-1.  **Selection Feedback:**
+*   **Selection Feedback:**
     *   Visually highlight the selected item during long-press.
     *   Allow deselecting by tapping the item again.
-2.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
-3.  **Categories Implementation:** Currently a placeholder in the drawer.
-4.  **Unit/Integration Testing:** Expand test coverage.
+
+**Current To-Do / Areas for Improvement:**
+1.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
+2.  **Categories Implementation:** Currently a placeholder in the drawer.
+3.  **Unit/Integration Testing:** Expand test coverage.
 
 This log file summarizes the current state and outlines potential next steps.
