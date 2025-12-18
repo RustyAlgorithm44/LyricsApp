@@ -40,33 +40,40 @@
                 android:padding="16dp"
                 android:layout_marginTop="8dp"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/songRecyclerView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:padding="8dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+                android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/emptyStateTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="No songs yet. Tap '+' to add one!"
-                android:textSize="18sp"
-                android:padding="16dp"
-                android:visibility="gone" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/songRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
-            <TextView
-                android:id="@+id/noSearchResultsTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="No songs found for your search."
-                android:textSize="18sp"
-                android:padding="16dp"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/emptyStateTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:text="No songs yet. Tap '+' to add one!"
+                    android:textSize="18sp"
+                    android:padding="16dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/noSearchResultsTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:text="No songs found for your search."
+                    android:textSize="18sp"
+                    android:padding="16dp"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
         </LinearLayout>
 

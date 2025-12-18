@@ -1,0 +1,51 @@
+## LyricsApp Project Log
+
+**Overview:**
+The LyricsApp is an Android application designed to help users store, manage, and view song lyrics. It utilizes a standard MVVM (Model-View-ViewModel) architecture with Room for local data persistence.
+
+**Current Features:**
+*   **Add Songs:** Users can add new songs with their titles, artist, category, lyrics, and optional YouTube link.
+*   **Search Songs:** Users can search for songs by title, artist, category, or lyrics.
+*   **Edit/Delete Songs:** Users can edit or delete existing songs from the collection via long-press on the song list.
+*   **View Song List:** Displays a list of all stored songs.
+*   **Contextual Action Mode:** Manual implementation for edit/delete in the main toolbar.
+*   **Side Panel (Navigation Drawer):** Access to Settings and Categories (placeholder).
+*   **Pinch-to-Zoom Lyrics:** Improved functionality in `SongDetailActivity` allowing scaling and panning.
+
+**Architecture Summary:**
+The application follows a consistent MVVM architectural pattern using Kotlin, Room Persistence Library, ViewModel, and Flow.
+*   **Model:** `Song.kt` defines the data structure for a song. `AppDatabase.kt` and `SongDao.kt` handle the database interactions. `SongRepository.kt` acts as an abstraction layer for data access.
+*   **View:** `MainActivity.kt` manages the main UI, including the song list, navigation drawer, and search. `SongDetailActivity.kt` displays individual song details with zoom support. `SettingsActivity.kt` is present for app-level configurations.
+*   **ViewModel:** `SongViewModel.kt` prepared and managed data for the UI, communicating exclusively with the `SongRepository`.
+
+**Key Files/Components:**
+*   `app/src/main/java/com/guruguhan/lyricsapp/MainActivity.kt`: Main entry point, handles UI setup, search, and manual action mode.
+*   `app/src/main/java/com/guruguhan/lyricsapp/viewmodel/SongViewModel.kt`: Manages UI-related data and interacts with `SongRepository`, with robust error handling.
+*   `app/src/main/java/com/guruguhan/lyricsapp/data/SongRepository.kt`: Abstraction layer for all data operations.
+*   `app/src/main/java/com/guruguhan/lyricsapp/data/Song.kt`: Data class for a song entity (Room entity).
+*   `app/src/main/java/com/guruguhan/lyricsapp/ui/SongAdapter.kt`: ListAdapter for displaying songs in a RecyclerView.
+*   `app/src/main/java/com/guruguhan/lyricsapp/SongDetailActivity.kt`: Displays song lyrics with pinch-to-zoom and share functionality.
+*   `app/src/main/java/com/guruguhan/lyricsapp/SettingsActivity.kt`: Application settings.
+*   `app/src/main/java/com/guruguhan/lyricsapp/backup/BackupManager.kt`: Hint at backup functionality.
+
+**Completed Tasks:**
+*   **Input Validation:** Added validation to prevent adding new songs with blank titles or lyrics.
+*   **Home Page UI:**
+    *   Added a Toolbar with a hamburger icon and the app name.
+    *   Implemented Navigation Drawer for side panel access.
+    *   Centered empty state ("No songs yet") and search result feedback ("No songs found") UI.
+*   **YouTube Link:** Added `youtubeLink` support to the data model, database, and UI.
+*   **Pinch Zoom Lyrics:** Implemented scaling and fixed panning issues in `SongDetailActivity`.
+*   **Edit/Delete Functionality:** Added manual contextual action mode for managing songs.
+*   **ViewModel Refactoring:** Ensured `SongViewModel` uses `SongRepository` exclusively.
+*   **Error Handling:** Implemented `SharedFlow` for communicating database errors to the UI.
+*   **Refine Backup/Restore logic:** Updated `BackupManager` to include `youtubeLink`, made imports additive, and added duplicate detection (skips existing Title+Artist).
+*   **Testing:** Added `SongDaoTest.kt` for verifying database operations.
+
+**Current To-Do / Areas for Improvement:**
+1.  **Full `SettingsActivity` Implementation:** Add features like theme switching or backup management.
+2.  **Categories Implementation:** Move beyond the placeholder and implement actual song categorization logic.
+3.  **UI/UX Refinements:** Ensure consistent Material 3 styling throughout the app.
+4.  **Unit/Integration Testing:** Expand test coverage for ViewModel and Repository.
+
+This log file summarizes the current state and outlines potential next steps.

@@ -79,6 +79,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+        lifecycleScope.launch {
+            viewModel.errorEvents.collect { message ->
+                Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+            }
+        }
+
         val fab =
             findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(
                 R.id.addSongFab

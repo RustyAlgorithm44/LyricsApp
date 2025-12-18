@@ -24,6 +24,7 @@ object BackupManager {
                 put("artist", song.artist)
                 put("category", song.category)
                 put("lyrics", song.lyrics)
+                put("youtubeLink", song.youtubeLink)
             }
             jsonArray.put(obj)
         }
@@ -35,18 +36,26 @@ object BackupManager {
         val dao = AppDatabase.getDatabase(context).songDao()
         val array = JSONArray(json)
 
-        dao.deleteAll()
-
         for (i in 0 until array.length()) {
             val obj = array.getJSONObject(i)
-            dao.insert(
-                Song(
-                    title = obj.getString("title"),
-                    artist = obj.getString("artist"),
-                    category = obj.getString("category"),
-                    lyrics = obj.getString("lyrics")
+            val title = obj.getString("title")
+            val artist = obj.getString("artist")
+            val category = obj.getString("category")
+            val lyrics = obj.getString("lyrics")
+            val youtubeLink = obj.optString("youtubeLink", null)
+
+            val existingSong = dao.findSongByTitleAndArtist(title, artist)
+            if (existingSong == null) {
+                dao.insert(
+                    Song(
+                        title = title,
+                        artist = artist,
+                        category = category,
+                        lyrics = lyrics,
+                        youtubeLink = youtubeLink
+                    )
                 )
-            )
+            }
         }
     }
 }
