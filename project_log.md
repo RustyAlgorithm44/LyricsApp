@@ -60,10 +60,12 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Selection Feedback:**
     *   Visually highlight the selected item during long-press.
     *   Allow deselecting by tapping the item again.
+*   *   Fixed: Lyrics field height in "Add Song" dialog.
 
 **Current To-Do / Areas for Improvement:**
 1.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
 2.  **Categories Implementation:** Currently a placeholder in the drawer.
 3.  **Unit/Integration Testing:** Expand test coverage.
+4.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
 
 This log file summarizes the current state and outlines potential next steps.
