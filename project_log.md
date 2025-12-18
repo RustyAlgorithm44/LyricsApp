@@ -1,11 +1,11 @@
 ## LyricsApp Project Log
 
 **Overview:**
-The LyricsApp is an Android application designed to help users store, manage, and view song lyrics. It utilizes a standard MVVM (Model-View-ViewModel) architecture with Room for local data persistence.
+The LyricsApp is an Android application designed to help users store, manage, and view song lyrics. It utilizes a standard MVVM (Model-View-ViewModel) architecture with Room for local data persistence. The app is customized for Carnatic music.
 
 **Current Features:**
-*   **Add Songs:** Users can add new songs with their titles, artist, category, lyrics, and optional YouTube link.
-*   **Search Songs:** Users can search for songs by title, artist, category, or lyrics.
+*   **Add Songs:** Users can add new songs with their titles, composer, deity, category, lyrics, and optional YouTube link.
+*   **Search Songs:** Users can search for songs by title, composer, deity, category, or lyrics.
 *   **Edit/Delete Songs:** Users can edit or delete existing songs from the collection via long-press on the song list.
 *   **View Song List:** Displays a list of all stored songs.
 *   **Contextual Action Mode:** Manual implementation for edit/delete in the main toolbar.
@@ -15,7 +15,7 @@ The LyricsApp is an Android application designed to help users store, manage, an
 **Architecture Summary:**
 The application follows a consistent MVVM architectural pattern using Kotlin, Room Persistence Library, ViewModel, and Flow.
 *   **Model:** `Song.kt` defines the data structure for a song. `AppDatabase.kt` and `SongDao.kt` handle the database interactions. `SongRepository.kt` acts as an abstraction layer for data access.
-*   **View:** `MainActivity.kt` manages the main UI, including the song list, navigation drawer, and search. `SongDetailActivity.kt` displays individual song details with zoom support. `SettingsActivity.kt` is present for app-level configurations.
+*   **View:** `MainActivity.kt` manages the main UI, including the song list, navigation drawer, and search. `SongDetailActivity.kt` displays individual song details with zoom support. `SettingsActivity.kt` handles app-level configurations.
 *   **ViewModel:** `SongViewModel.kt` prepared and managed data for the UI, communicating exclusively with the `SongRepository`.
 
 **Key Files/Components:**
@@ -39,13 +39,23 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Edit/Delete Functionality:** Added manual contextual action mode for managing songs.
 *   **ViewModel Refactoring:** Ensured `SongViewModel` uses `SongRepository` exclusively.
 *   **Error Handling:** Implemented `SharedFlow` for communicating database errors to the UI.
-*   **Refine Backup/Restore logic:** Updated `BackupManager` to include `youtubeLink`, made imports additive, and added duplicate detection (skips existing Title+Artist).
+*   **Refine Backup/Restore logic:** Updated `BackupManager` to include `youtubeLink`, made imports additive (non-destructive), and added duplicate detection.
 *   **Testing:** Added `SongDaoTest.kt` for verifying database operations.
+*   **Carnatic Music Customization (Database):**
+    *   Refactored `artist` to `composer`.
+    *   Added `deity` field to `Song` entity.
+*   **UI Updates:**
+    *   Updated Add/Edit dialogs to include "Deity" and renamed "Artist" to "Composer".
+    *   Updated `SongDetailActivity` and `SongAdapter` to display these new fields.
+*   **Settings Page UI:**
+    *   Added the standard top bar with hamburger menu and "Settings" title.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Full `SettingsActivity` Implementation:** Add features like theme switching or backup management.
-2.  **Categories Implementation:** Move beyond the placeholder and implement actual song categorization logic.
-3.  **UI/UX Refinements:** Ensure consistent Material 3 styling throughout the app.
-4.  **Unit/Integration Testing:** Expand test coverage for ViewModel and Repository.
+1.  **Home Page Organization:**
+    *   Implement grouping/view modes: By Deity, By Composer, and All Songs.
+2.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
+3.  **Categories Implementation:** Move beyond the placeholder and implement actual song categorization logic (potentially merged with Home Page Organization).
+4.  **UI/UX Refinements:** Ensure consistent Material 3 styling throughout the app.
+5.  **Unit/Integration Testing:** Expand test coverage for ViewModel and Repository.
 
 This log file summarizes the current state and outlines potential next steps.

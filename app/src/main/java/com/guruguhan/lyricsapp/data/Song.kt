@@ -8,7 +8,8 @@ data class Song(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val title: String,
-    val artist: String,
+    val composer: String,
+    val deity: String? = null,
     val category: String,
     val lyrics: String,
     val youtubeLink: String? = null

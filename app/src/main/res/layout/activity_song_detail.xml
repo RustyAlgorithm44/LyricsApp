@@ -15,7 +15,14 @@
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/detailArtist"
+        android:id="@+id/detailDeity"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/detailComposer"
         android:textSize="16sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

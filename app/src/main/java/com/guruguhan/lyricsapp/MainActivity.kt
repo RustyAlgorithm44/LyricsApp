@@ -200,7 +200,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
-        val artistInput = dialogView.findViewById<android.widget.EditText>(R.id.inputArtist)
+        val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
+        val deityInput = dialogView.findViewById<android.widget.EditText>(R.id.inputDeity)
         val categoryInput = dialogView.findViewById<android.widget.EditText>(R.id.inputCategory)
         val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
@@ -211,7 +212,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
                 val title = titleInput.text.toString().trim()
-                val artist = artistInput.text.toString().trim()
+                val composer = composerInput.text.toString().trim()
+                val deity = deityInput.text.toString().trim().nullIfBlank()
                 val category = categoryInput.text.toString().trim()
                 val lyrics = lyricsInput.text.toString().trim()
                 val youtubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
@@ -225,7 +227,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 } else {
                     val song = com.guruguhan.lyricsapp.data.Song(
                         title = title,
-                        artist = artist,
+                        composer = composer,
+                        deity = deity,
                         category = category,
                         lyrics = lyrics,
                         youtubeLink = youtubeLink
@@ -241,7 +244,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
-        val artistInput = dialogView.findViewById<android.widget.EditText>(R.id.inputArtist)
+        val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
+        val deityInput = dialogView.findViewById<android.widget.EditText>(R.id.inputDeity)
         val categoryInput = dialogView.findViewById<android.widget.EditText>(R.id.inputCategory)
         val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
@@ -249,7 +253,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Pre-fill with existing song data
         titleInput.setText(song.title)
-        artistInput.setText(song.artist)
+        composerInput.setText(song.composer)
+        deityInput.setText(song.deity)
         categoryInput.setText(song.category)
         lyricsInput.setText(song.lyrics)
         youtubeLinkInput.setText(song.youtubeLink)
@@ -259,7 +264,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
                 val updatedTitle = titleInput.text.toString().trim()
-                val updatedArtist = artistInput.text.toString().trim()
+                val updatedComposer = composerInput.text.toString().trim()
+                val updatedDeity = deityInput.text.toString().trim().nullIfBlank()
                 val updatedCategory = categoryInput.text.toString().trim()
                 val updatedLyrics = lyricsInput.text.toString().trim()
                 val updatedYoutubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
@@ -273,7 +279,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 } else {
                     val updatedSong = song.copy(
                         title = updatedTitle,
-                        artist = updatedArtist,
+                        composer = updatedComposer,
+                        deity = updatedDeity,
                         category = updatedCategory,
                         lyrics = updatedLyrics,
                         youtubeLink = updatedYoutubeLink

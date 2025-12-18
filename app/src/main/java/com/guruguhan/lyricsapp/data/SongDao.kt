@@ -26,7 +26,8 @@ interface SongDao {
     @Query("""
     SELECT * FROM songs
     WHERE title LIKE '%' || :query || '%'
-       OR artist LIKE '%' || :query || '%'
+       OR composer LIKE '%' || :query || '%'
+       OR deity LIKE '%' || :query || '%'
        OR lyrics LIKE '%' || :query || '%'
        OR category LIKE '%' || :query || '%'
     ORDER BY title ASC
@@ -39,8 +40,8 @@ interface SongDao {
     @Query("SELECT * FROM songs")
     suspend fun getAllSongsOnce(): List<Song>
 
-    @Query("SELECT * FROM songs WHERE title = :title AND artist = :artist LIMIT 1")
-    suspend fun findSongByTitleAndArtist(title: String, artist: String): Song?
+    @Query("SELECT * FROM songs WHERE title = :title AND composer = :composer LIMIT 1")
+    suspend fun findSongByTitleAndComposer(title: String, composer: String): Song?
 
     @Query("DELETE FROM songs")
     suspend fun deleteAll()

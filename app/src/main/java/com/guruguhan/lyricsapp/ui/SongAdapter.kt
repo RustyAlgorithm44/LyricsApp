@@ -30,12 +30,14 @@ class SongAdapter(
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.titleText)
-        val artist: TextView = itemView.findViewById(R.id.artistText)
+        val composer: TextView = itemView.findViewById(R.id.composerText)
+        val deity: TextView = itemView.findViewById(R.id.deityText)
         val category: TextView = itemView.findViewById(R.id.categoryText)
 
         fun bind(song: Song, onItemClick: (Song) -> Unit, onItemLongClick: (Song) -> Unit) {
             title.text = song.title
-            artist.text = song.artist
+            composer.text = song.composer
+            deity.text = song.deity ?: ""
             category.text = song.category
 
             itemView.setOnClickListener {
@@ -43,7 +45,8 @@ class SongAdapter(
                 val context = itemView.context
                 val intent = Intent(context, SongDetailActivity::class.java).apply {
                     putExtra("title", song.title)
-                    putExtra("artist", song.artist)
+                    putExtra("composer", song.composer)
+                    putExtra("deity", song.deity)
                     putExtra("category", song.category)
                     putExtra("lyrics", song.lyrics)
                     putExtra("youtubeLink", song.youtubeLink) // Pass youtubeLink

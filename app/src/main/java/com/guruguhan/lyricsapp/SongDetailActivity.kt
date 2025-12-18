@@ -21,12 +21,14 @@ class SongDetailActivity : AppCompatActivity() {
         supportActionBar?.title = "Lyrics"
 
         val title = intent.getStringExtra("title") ?: ""
-        val artist = intent.getStringExtra("artist") ?: ""
+        val composer = intent.getStringExtra("composer") ?: ""
+        val deity = intent.getStringExtra("deity") ?: ""
         val category = intent.getStringExtra("category") ?: ""
         val lyrics = intent.getStringExtra("lyrics") ?: ""
 
         findViewById<android.widget.TextView>(R.id.detailTitle).text = title
-        findViewById<android.widget.TextView>(R.id.detailArtist).text = artist
+        findViewById<android.widget.TextView>(R.id.detailComposer).text = composer
+        findViewById<android.widget.TextView>(R.id.detailDeity).text = deity
         findViewById<android.widget.TextView>(R.id.detailCategory).text = category
 
         detailLyricsTextView = findViewById(R.id.detailLyrics)
@@ -36,7 +38,7 @@ class SongDetailActivity : AppCompatActivity() {
         scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
 
         findViewById<android.widget.Button>(R.id.shareButton).setOnClickListener {
-            val shareText = "$title – $artist\n\n$lyrics"
+            val shareText = "$title\n$deity\n$composer\n\n$lyrics"
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, shareText)

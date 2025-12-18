@@ -5,10 +5,6 @@ import com.guruguhan.lyricsapp.data.AppDatabase
 import com.guruguhan.lyricsapp.data.Song
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 object BackupManager {
 
@@ -21,7 +17,8 @@ object BackupManager {
         for (song in songs) {
             val obj = JSONObject().apply {
                 put("title", song.title)
-                put("artist", song.artist)
+                put("composer", song.composer)
+                put("deity", song.deity)
                 put("category", song.category)
                 put("lyrics", song.lyrics)
                 put("youtubeLink", song.youtubeLink)
@@ -39,17 +36,24 @@ object BackupManager {
         for (i in 0 until array.length()) {
             val obj = array.getJSONObject(i)
             val title = obj.getString("title")
-            val artist = obj.getString("artist")
+            // Handle legacy "artist" key if "composer" is missing
+            val composer = if (obj.has("composer")) {
+                obj.getString("composer")
+            } else {
+                obj.optString("artist", "")
+            }
+            val deity = obj.optString("deity", null)
             val category = obj.getString("category")
             val lyrics = obj.getString("lyrics")
             val youtubeLink = obj.optString("youtubeLink", null)
 
-            val existingSong = dao.findSongByTitleAndArtist(title, artist)
+            val existingSong = dao.findSongByTitleAndComposer(title, composer)
             if (existingSong == null) {
                 dao.insert(
                     Song(
                         title = title,
-                        artist = artist,
+                        composer = composer,
+                        deity = deity,
                         category = category,
                         lyrics = lyrics,
                         youtubeLink = youtubeLink

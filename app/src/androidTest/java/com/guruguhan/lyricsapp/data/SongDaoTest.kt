@@ -43,7 +43,7 @@ class SongDaoTest {
 
     @Test
     fun insertAndGetSong() = runBlocking {
-        val song = Song(id = 1, title = "Test Song", artist = "Test Artist", category = "Pop", lyrics = "Test Lyrics", youtubeLink = "youtube.com/test")
+        val song = Song(id = 1, title = "Test Song", composer = "Test Composer", deity = "Test Deity", category = "Pop", lyrics = "Test Lyrics", youtubeLink = "youtube.com/test")
         songDao.insert(song)
 
         val allSongs = songDao.getAllSongs().first()
@@ -53,8 +53,8 @@ class SongDaoTest {
 
     @Test
     fun getAllSongsSortedByTitleAsc() = runBlocking {
-        val song1 = Song(id = 1, title = "B Song", artist = "Artist A", category = "Pop", lyrics = "Lyrics B")
-        val song2 = Song(id = 2, title = "A Song", artist = "Artist B", category = "Rock", lyrics = "Lyrics A")
+        val song1 = Song(id = 1, title = "B Song", composer = "Composer A", deity = "Deity A", category = "Pop", lyrics = "Lyrics B")
+        val song2 = Song(id = 2, title = "A Song", composer = "Composer B", deity = "Deity B", category = "Rock", lyrics = "Lyrics A")
         songDao.insert(song1)
         songDao.insert(song2)
 
@@ -68,11 +68,11 @@ class SongDaoTest {
     fun getSongCount() = runBlocking {
         assertEquals(0, songDao.getSongCount())
 
-        val song1 = Song(id = 1, title = "Song 1", artist = "Artist 1", category = "Pop", lyrics = "Lyrics 1")
+        val song1 = Song(id = 1, title = "Song 1", composer = "Composer 1", deity = "Deity 1", category = "Pop", lyrics = "Lyrics 1")
         songDao.insert(song1)
         assertEquals(1, songDao.getSongCount())
 
-        val song2 = Song(id = 2, title = "Song 2", artist = "Artist 2", category = "Rock", lyrics = "Lyrics 2")
+        val song2 = Song(id = 2, title = "Song 2", composer = "Composer 2", deity = "Deity 2", category = "Rock", lyrics = "Lyrics 2")
         songDao.insert(song2)
         assertEquals(2, songDao.getSongCount())
 
@@ -85,8 +85,8 @@ class SongDaoTest {
 
     @Test
     fun searchSongs() = runBlocking {
-        val song1 = Song(id = 1, title = "Hello", artist = "Adele", category = "Pop", lyrics = "Hello from the other side")
-        val song2 = Song(id = 2, title = "World", artist = "Various", category = "Misc", lyrics = "World of wonders")
+        val song1 = Song(id = 1, title = "Hello", composer = "Adele", deity = "None", category = "Pop", lyrics = "Hello from the other side")
+        val song2 = Song(id = 2, title = "World", composer = "Various", deity = "Earth", category = "Misc", lyrics = "World of wonders")
         songDao.insert(song1)
         songDao.insert(song2)
 
@@ -104,8 +104,8 @@ class SongDaoTest {
 
     @Test
     fun deleteSong() = runBlocking {
-        val song1 = Song(id = 1, title = "Song 1", artist = "Artist 1", category = "Pop", lyrics = "Lyrics 1")
-        val song2 = Song(id = 2, title = "Song 2", artist = "Artist 2", category = "Rock", lyrics = "Lyrics 2")
+        val song1 = Song(id = 1, title = "Song 1", composer = "Composer 1", deity = "Deity 1", category = "Pop", lyrics = "Lyrics 1")
+        val song2 = Song(id = 2, title = "Song 2", composer = "Composer 2", deity = "Deity 2", category = "Rock", lyrics = "Lyrics 2")
         songDao.insert(song1)
         songDao.insert(song2)
 
@@ -120,7 +120,7 @@ class SongDaoTest {
 
     @Test
     fun updateSong() = runBlocking {
-        val song = Song(id = 1, title = "Original Title", artist = "Original Artist", category = "Pop", lyrics = "Original Lyrics")
+        val song = Song(id = 1, title = "Original Title", composer = "Original Composer", deity = "Original Deity", category = "Pop", lyrics = "Original Lyrics")
         songDao.insert(song)
 
         val updatedSong = song.copy(title = "Updated Title", lyrics = "Updated Lyrics", youtubeLink = "youtube.com/updated")
@@ -134,8 +134,8 @@ class SongDaoTest {
 
     @Test
     fun deleteAllSongs() = runBlocking {
-        val song1 = Song(id = 1, title = "Song 1", artist = "Artist 1", category = "Pop", lyrics = "Lyrics 1")
-        val song2 = Song(id = 2, title = "Song 2", artist = "Artist 2", category = "Rock", lyrics = "Lyrics 2")
+        val song1 = Song(id = 1, title = "Song 1", composer = "Composer 1", deity = "Deity 1", category = "Pop", lyrics = "Lyrics 1")
+        val song2 = Song(id = 2, title = "Song 2", composer = "Composer 2", deity = "Deity 2", category = "Rock", lyrics = "Lyrics 2")
         songDao.insert(song1)
         songDao.insert(song2)
 
