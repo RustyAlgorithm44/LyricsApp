@@ -11,6 +11,7 @@ The LyricsApp is an Android application designed to help users store, manage, an
 *   **Contextual Action Mode:** Manual implementation for edit/delete in the main toolbar.
 *   **Side Panel (Navigation Drawer):** Access to Settings and Categories (placeholder).
 *   **Pinch-to-Zoom Lyrics:** Improved functionality in `SongDetailActivity` allowing scaling and panning.
+*   **Home Page Organization:** Filter songs by Deity or Composer using Chips.
 
 **Architecture Summary:**
 The application follows a consistent MVVM architectural pattern using Kotlin, Room Persistence Library, ViewModel, and Flow.
@@ -53,11 +54,16 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Implemented grouping/view modes: All Songs, By Deity, By Composer using a ChipGroup.
     *   Added `GroupAdapter` to display lists of unique Deities and Composers.
     *   Implemented drill-down navigation from group lists to filtered song lists.
+*   **Material 3 Refinements:**
+    *   Enabled Dynamic Color throughout the app for Android 12+ users.
+    *   Modernized the "Add Song" dialog by limiting the lyrics field height and making it scrollable.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
-2.  **Categories Implementation:** Currently a placeholder in the drawer; logic could be merged with the Home Page Organization if "Category" grouping is desired.
-3.  **UI/UX Refinements:** Ensure consistent Material 3 styling throughout the app.
-4.  **Unit/Integration Testing:** Expand test coverage for ViewModel and Repository.
+1.  **Selection Feedback:**
+    *   Visually highlight the selected item during long-press.
+    *   Allow deselecting by tapping the item again.
+2.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
+3.  **Categories Implementation:** Currently a placeholder in the drawer.
+4.  **Unit/Integration Testing:** Expand test coverage.
 
 This log file summarizes the current state and outlines potential next steps.
