@@ -21,4 +21,12 @@ class SongRepository(private val songDao: SongDao) {
     fun search(query: String) =
         songDao.searchSongs(query)
 
+    fun getUniqueDeities() = songDao.getUniqueDeities()
+
+    fun getUniqueComposers() = songDao.getUniqueComposers()
+
+    fun getSongsByDeity(deity: String) = songDao.getSongsByDeity(deity)
+
+    fun getSongsByComposer(composer: String) = songDao.getSongsByComposer(composer)
+
 }

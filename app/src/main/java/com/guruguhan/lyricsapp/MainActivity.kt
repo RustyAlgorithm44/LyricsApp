@@ -13,9 +13,12 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.navigation.NavigationView
+import com.guruguhan.lyricsapp.ui.GroupAdapter
 import com.guruguhan.lyricsapp.ui.SongAdapter
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -23,7 +26,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var adapter: SongAdapter
+    private lateinit var groupAdapter: GroupAdapter
     private val viewModel: SongViewModel by viewModels()
+
+    private enum class ViewMode {
+        ALL_SONGS,
+        DEITY_LIST,
+        COMPOSER_LIST,
+        SONGS_FILTERED
+    }
+
+    private var currentViewMode = ViewMode.ALL_SONGS
+    private var observeJob: Job? = null
+    private var currentFilterType: String? = null // "DEITY" or "COMPOSER"
+    private var currentFilterValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +65,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         adapter = SongAdapter(
             onItemClick = { song ->
-                // onItemClick is now handled within the SongAdapter to open SongDetailActivity
-                // No action needed here as the adapter itself will start the activity.
+                val intent = Intent(this, SongDetailActivity::class.java).apply {
+                    putExtra("title", song.title)
+                    putExtra("composer", song.composer)
+                    putExtra("deity", song.deity)
+                    putExtra("category", song.category)
+                    putExtra("lyrics", song.lyrics)
+                    putExtra("youtubeLink", song.youtubeLink)
+                }
+                startActivity(intent)
             },
             onItemLongClick = { song ->
                 if (!isInActionMode) {
@@ -59,25 +82,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         )
 
+        groupAdapter = GroupAdapter { name ->
+            currentFilterValue = name
+            currentViewMode = ViewMode.SONGS_FILTERED
+            // Determine filter type based on previous mode
+            // But wait, if I am in DEITY_LIST, type is DEITY.
+            // I need to know which list I came from.
+            // I can infer from currentViewMode before switching.
+            if (findViewById<com.google.android.material.chip.Chip>(R.id.chipDeity).isChecked) {
+                currentFilterType = "DEITY"
+            } else if (findViewById<com.google.android.material.chip.Chip>(R.id.chipComposer).isChecked) {
+                currentFilterType = "COMPOSER"
+            }
+            updateUI()
+        }
+
         val recyclerView =
             findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        // adapter set in updateUI
 
-        // 🔑 Collect Flow properly
-        lifecycleScope.launch {
-            viewModel.allSongs.collect { songs ->
-                adapter.submitList(songs)
-                if (songs.isEmpty()) {
-                    // Show empty state message
-                    findViewById<android.widget.TextView>(R.id.emptyStateTextView).visibility =
-                        android.view.View.VISIBLE
-                } else {
-                    findViewById<android.widget.TextView>(R.id.emptyStateTextView).visibility =
-                        android.view.View.GONE
+        val chipGroup = findViewById<ChipGroup>(R.id.chipGroup)
+        chipGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.chipAll -> {
+                    currentViewMode = ViewMode.ALL_SONGS
+                    updateUI()
+                }
+                R.id.chipDeity -> {
+                    currentViewMode = ViewMode.DEITY_LIST
+                    updateUI()
+                }
+                R.id.chipComposer -> {
+                    currentViewMode = ViewMode.COMPOSER_LIST
+                    updateUI()
                 }
             }
         }
+
+        updateUI() // Initial UI state
 
         lifecycleScope.launch {
             viewModel.errorEvents.collect { message ->
@@ -98,24 +141,103 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         searchInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
-                lifecycleScope.launch {
-                    viewModel.search(s.toString()).collect { songs ->
-                        adapter.submitList(songs)
-                        if (songs.isEmpty() && !s.isNullOrBlank()) {
-                            // Show no search results message
-                            findViewById<android.widget.TextView>(R.id.noSearchResultsTextView).visibility =
-                                android.view.View.VISIBLE
-                        } else {
-                            findViewById<android.widget.TextView>(R.id.noSearchResultsTextView).visibility =
-                                android.view.View.GONE
+                // If searching, we might want to temporarily show ALL songs filtered by search, 
+                // or search within the current list.
+                // For simplicity, let's keep search as a global search for now, 
+                // effectively switching to a "Search Result" mode or just filtering the current adapter.
+                // But wait, groupAdapter handles Strings, not Songs.
+                // If I search "Ganesha", do I show Ganesha the deity or songs about Ganesha?
+                // The current search logic in ViewModel returns Songs.
+                // So search should probably switch to a "Search Mode" or just filter songs.
+                // Let's keep it simple: Search implies "All Songs" filtered by query.
+                if (!s.isNullOrBlank()) {
+                    // Switch to All Songs internally? Or just show results.
+                    // Let's force adapter to SongAdapter and show results.
+                    recyclerView.adapter = adapter
+                    observeJob?.cancel()
+                    observeJob = lifecycleScope.launch {
+                        viewModel.search(s.toString()).collect { songs ->
+                            adapter.submitList(songs)
+                            updateEmptyState(songs.isEmpty(), isSearch = true)
                         }
                     }
+                } else {
+                    // Restore current view mode
+                    updateUI()
                 }
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+    }
+
+    private fun updateUI() {
+        val recyclerView = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.songRecyclerView)
+        observeJob?.cancel()
+
+        when (currentViewMode) {
+            ViewMode.ALL_SONGS -> {
+                recyclerView.adapter = adapter
+                observeJob = lifecycleScope.launch {
+                    viewModel.allSongs.collect { songs ->
+                        adapter.submitList(songs)
+                        updateEmptyState(songs.isEmpty())
+                    }
+                }
+            }
+            ViewMode.DEITY_LIST -> {
+                recyclerView.adapter = groupAdapter
+                observeJob = lifecycleScope.launch {
+                    viewModel.uniqueDeities.collect { deities ->
+                        groupAdapter.submitList(deities)
+                        updateEmptyState(deities.isEmpty())
+                    }
+                }
+            }
+            ViewMode.COMPOSER_LIST -> {
+                recyclerView.adapter = groupAdapter
+                observeJob = lifecycleScope.launch {
+                    viewModel.uniqueComposers.collect { composers ->
+                        groupAdapter.submitList(composers)
+                        updateEmptyState(composers.isEmpty())
+                    }
+                }
+            }
+            ViewMode.SONGS_FILTERED -> {
+                recyclerView.adapter = adapter
+                observeJob = lifecycleScope.launch {
+                    val flow = if (currentFilterType == "DEITY") {
+                        viewModel.getSongsByDeity(currentFilterValue ?: "")
+                    } else {
+                        viewModel.getSongsByComposer(currentFilterValue ?: "")
+                    }
+                    flow.collect { songs ->
+                        adapter.submitList(songs)
+                        updateEmptyState(songs.isEmpty())
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateEmptyState(isEmpty: Boolean, isSearch: Boolean = false) {
+        val emptyText = findViewById<android.widget.TextView>(R.id.emptyStateTextView)
+        val noSearchText = findViewById<android.widget.TextView>(R.id.noSearchResultsTextView)
+
+        if (isEmpty) {
+            if (isSearch) {
+                noSearchText.visibility = android.view.View.VISIBLE
+                emptyText.visibility = android.view.View.GONE
+            } else {
+                emptyText.visibility = android.view.View.VISIBLE
+                emptyText.text = if (currentViewMode == ViewMode.ALL_SONGS) "No songs yet. Tap '+' to add one!" else "No items found."
+                noSearchText.visibility = android.view.View.GONE
+            }
+        } else {
+            emptyText.visibility = android.view.View.GONE
+            noSearchText.visibility = android.view.View.GONE
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -141,12 +263,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            if (isInActionMode) {
-                endManualActionMode()
+        } else if (isInActionMode) {
+            endManualActionMode()
+        } else if (currentViewMode == ViewMode.SONGS_FILTERED) {
+            // Go back to the list (Deity or Composer)
+            if (currentFilterType == "DEITY") {
+                currentViewMode = ViewMode.DEITY_LIST
+                // Chip is already checked
             } else {
-                super.onBackPressed()
+                currentViewMode = ViewMode.COMPOSER_LIST
             }
+            updateUI()
+        } else if (currentViewMode != ViewMode.ALL_SONGS) {
+            // Go back to All Songs
+            findViewById<com.google.android.material.chip.Chip>(R.id.chipAll).isChecked = true
+            currentViewMode = ViewMode.ALL_SONGS // Listener will trigger updateUI
+        } else {
+            super.onBackPressed()
         }
     }
 

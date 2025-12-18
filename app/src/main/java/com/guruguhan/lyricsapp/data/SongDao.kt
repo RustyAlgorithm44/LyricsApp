@@ -43,6 +43,18 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE title = :title AND composer = :composer LIMIT 1")
     suspend fun findSongByTitleAndComposer(title: String, composer: String): Song?
 
+    @Query("SELECT DISTINCT deity FROM songs WHERE deity IS NOT NULL AND deity != '' ORDER BY deity ASC")
+    fun getUniqueDeities(): Flow<List<String>>
+
+    @Query("SELECT DISTINCT composer FROM songs WHERE composer IS NOT NULL AND composer != '' ORDER BY composer ASC")
+    fun getUniqueComposers(): Flow<List<String>>
+
+    @Query("SELECT * FROM songs WHERE deity = :deity ORDER BY title ASC")
+    fun getSongsByDeity(deity: String): Flow<List<Song>>
+
+    @Query("SELECT * FROM songs WHERE composer = :composer ORDER BY title ASC")
+    fun getSongsByComposer(composer: String): Flow<List<Song>>
+
     @Query("DELETE FROM songs")
     suspend fun deleteAll()
 }

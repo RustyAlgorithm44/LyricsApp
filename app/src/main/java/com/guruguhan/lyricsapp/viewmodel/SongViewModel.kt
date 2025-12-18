@@ -54,4 +54,10 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     fun search(query: String) =
         repository.search(query)
+
+    val uniqueDeities = repository.getUniqueDeities()
+    val uniqueComposers = repository.getUniqueComposers()
+
+    fun getSongsByDeity(deity: String) = repository.getSongsByDeity(deity)
+    fun getSongsByComposer(composer: String) = repository.getSongsByComposer(composer)
 }

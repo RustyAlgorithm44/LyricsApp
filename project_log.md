@@ -49,13 +49,15 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Updated `SongDetailActivity` and `SongAdapter` to display these new fields.
 *   **Settings Page UI:**
     *   Added the standard top bar with hamburger menu and "Settings" title.
+*   **Home Page Organization:**
+    *   Implemented grouping/view modes: All Songs, By Deity, By Composer using a ChipGroup.
+    *   Added `GroupAdapter` to display lists of unique Deities and Composers.
+    *   Implemented drill-down navigation from group lists to filtered song lists.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Home Page Organization:**
-    *   Implement grouping/view modes: By Deity, By Composer, and All Songs.
-2.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
-3.  **Categories Implementation:** Move beyond the placeholder and implement actual song categorization logic (potentially merged with Home Page Organization).
-4.  **UI/UX Refinements:** Ensure consistent Material 3 styling throughout the app.
-5.  **Unit/Integration Testing:** Expand test coverage for ViewModel and Repository.
+1.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
+2.  **Categories Implementation:** Currently a placeholder in the drawer; logic could be merged with the Home Page Organization if "Category" grouping is desired.
+3.  **UI/UX Refinements:** Ensure consistent Material 3 styling throughout the app.
+4.  **Unit/Integration Testing:** Expand test coverage for ViewModel and Repository.
 
 This log file summarizes the current state and outlines potential next steps.
