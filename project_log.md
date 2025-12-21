@@ -69,8 +69,8 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 **Current To-Do / Areas for Improvement:**
 1.  **Implement Share App Link functionality (e.g., Google Play Store link).**
 2.  **Explore sharing individual songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
-3.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
-4.  **Unit/Integration Testing:** Expand test coverage.
+3.  **Full `SettingsActivity` Implementation:** Add features like theme switching. And make the overall app look better.
+4.  **Unit/Integration Testing:** Expand test coverage. - what is this? I don't understand. I know that there are currently a few random test entries, but idk where and how it is used.
 5.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
 
 This log file summarizes the current state and outlines potential next steps.
