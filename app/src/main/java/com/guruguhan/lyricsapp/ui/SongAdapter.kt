@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.guruguhan.lyricsapp.R
 import com.guruguhan.lyricsapp.data.Song
 
@@ -54,10 +55,7 @@ class SongAdapter(
             composer.text = song.composer
             deity.text = song.deity ?: ""
 
-            itemView.setBackgroundColor(
-                if (isSelected) ContextCompat.getColor(itemView.context, R.color.selection_color)
-                else Color.TRANSPARENT
-            )
+            (itemView as MaterialCardView).isChecked = isSelected
 
             itemView.setOnClickListener {
                 onItemClick(song)

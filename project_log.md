@@ -65,12 +65,17 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Removed "Category" field from the `Song` entity and all related UI components.
     *   Simplified the navigation drawer to include only "Settings" and "Share".
     *   Reverted "Share APK" functionality to a placeholder in both `MainActivity.kt` and `SettingsActivity.kt`.
+*   **Full `SettingsActivity` and UI Overhaul:**
+    *   Implemented theme switching (Light, Dark, System) via `AppCompatDelegate` and `SharedPreferences`.
+    *   Modernized the Settings screen using `MaterialCardView` to group options and `MaterialButton` for actions.
+    *   Upgraded the main screen search bar to a `com.google.android.material.textfield.TextInputLayout`.
+    *   Replaced the FAB's Holo-era add icon with a modern Material Design vector asset.
+    *   Converted song list items to use `MaterialCardView`, with `TextAppearance` for typography and a state-list drawable for improved visual feedback on selection.
 
 **Current To-Do / Areas for Improvement:**
 1.  **Implement Share App Link functionality (e.g., Google Play Store link).**
-2.  **Explore sharing individual songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
-3.  **Full `SettingsActivity` Implementation:** Add features like theme switching. And make the overall app look better.
-4.  **Unit/Integration Testing:** Expand test coverage. - what is this? I don't understand. I know that there are currently a few random test entries, but idk where and how it is used.
-5.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-
+2.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
+3.  **Unit/Integration Testing:** Expand test coverage. - what is this? I don't understand. I know that there are currently a few random test entries, but idk where and how it is used.
+4.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+5. favourite or star button? and one page for that from the side panel? This like button comes only in the lyrics view page. not in main page.
 This log file summarizes the current state and outlines potential next steps.

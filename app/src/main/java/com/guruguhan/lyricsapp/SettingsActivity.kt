@@ -13,15 +13,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.navigation.NavigationView
 import com.guruguhan.lyricsapp.backup.BackupManager
 import com.guruguhan.lyricsapp.data.AppDatabase
+import com.guruguhan.lyricsapp.ui.ThemeHelper
 import kotlinx.coroutines.launch
 
 class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+    private var isThemeBeingChanged = false
+
 
     private val exportLauncher =
         registerForActivityResult(
@@ -89,6 +93,8 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         lifecycleScope.launch {
             refreshSongCount()
         }
+
+        setupTheme()
         
         // Export button
         findViewById<Button>(R.id.exportButton).setOnClickListener {
@@ -135,9 +141,38 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             refreshSongCount()
         }
     }
+
+    private fun setupTheme() {
+        val themeChipGroup = findViewById<ChipGroup>(R.id.themeChipGroup)
+
+        // Set initial chip selection
+        when (ThemeHelper.getTheme(this)) {
+            ThemeHelper.LIGHT_MODE -> themeChipGroup.check(R.id.lightThemeChip)
+            ThemeHelper.DARK_MODE -> themeChipGroup.check(R.id.darkThemeChip)
+            else -> themeChipGroup.check(R.id.systemThemeChip)
+        }
+
+        themeChipGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (isThemeBeingChanged) return@setOnCheckedChangeListener
+            isThemeBeingChanged = true
+
+            val theme = when (checkedId) {
+                R.id.lightThemeChip -> ThemeHelper.LIGHT_MODE
+                R.id.darkThemeChip -> ThemeHelper.DARK_MODE
+                else -> ThemeHelper.SYSTEM_DEFAULT
+            }
+            ThemeHelper.setTheme(this, theme)
+        }
+    }
     
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.nav_home -> {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(intent)
+                finish()
+            }
             R.id.nav_settings -> {
                 // Already in Settings
                 drawerLayout.closeDrawer(GravityCompat.START)
@@ -148,6 +183,12 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.menu.findItem(R.id.nav_settings).isChecked = true
     }
 
     private fun shareApk() {

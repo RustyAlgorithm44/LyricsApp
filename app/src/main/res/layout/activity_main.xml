@@ -30,22 +30,33 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:padding="8dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <EditText
-                android:id="@+id/searchInput"
-                android:hint="Search for a song..."
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:layout_marginTop="8dp"/>
+                android:layout_margin="8dp"
+                android:hint="Search for a song..."
+                app:startIconDrawable="@drawable/ic_search">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/searchInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 app:singleSelection="true"
                 app:selectionRequired="true">
 
@@ -81,7 +92,8 @@
                     android:id="@+id/songRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="8dp"
+                    android:clipToPadding="false"
+                    android:paddingBottom="80dp" 
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
                 <TextView
@@ -115,10 +127,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="Add song"
+            android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            app:srcCompat="@android:drawable/ic_input_add"
-            app:layout_anchor="@id/songRecyclerView"
-            app:layout_anchorGravity="bottom|end"/>
+            app:srcCompat="@drawable/ic_add" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -21,6 +21,7 @@ import com.google.android.material.navigation.NavigationView
 import com.guruguhan.lyricsapp.data.Song
 import com.guruguhan.lyricsapp.ui.GroupAdapter
 import com.guruguhan.lyricsapp.ui.SongAdapter
+import android.view.MotionEvent
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import android.util.TypedValue
 import kotlinx.coroutines.Job
@@ -32,7 +33,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var adapter: SongAdapter
     private lateinit var groupAdapter: GroupAdapter
+    private lateinit var recyclerView: RecyclerView
     private val viewModel: SongViewModel by viewModels()
+
+    private val actionModeTouchListener = object : RecyclerView.OnItemTouchListener {
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+            if (adapter.isInActionMode && rv.findChildViewUnder(e.x, e.y) == null) {
+                endManualActionMode()
+                return true
+            }
+            return false
+        }
+
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+    }
 
     private enum class ViewMode {
         ALL_SONGS,
@@ -104,7 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             updateUI()
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.songRecyclerView)
+        recyclerView = findViewById(R.id.songRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         val chipGroup = findViewById<ChipGroup>(R.id.chipGroup)
@@ -230,6 +245,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.nav_home -> {
+                // Already at home, just close the drawer
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
             R.id.nav_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
@@ -283,6 +302,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun startManualActionMode(song: Song) {
         adapter.isInActionMode = true
+        recyclerView.addOnItemTouchListener(actionModeTouchListener)
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         toolbar.menu.clear()
         toolbar.inflateMenu(R.menu.menu_contextual_action_mode)
@@ -312,6 +332,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun endManualActionMode() {
         adapter.isInActionMode = false
+        recyclerView.removeOnItemTouchListener(actionModeTouchListener)
         adapter.selectedSongs.clear()
         adapter.notifyDataSetChanged()
 
@@ -418,9 +439,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        for (i in 0 until navigationView.menu.size()) {
-            navigationView.menu.getItem(i).isChecked = false
-        }
+        navigationView.menu.findItem(R.id.nav_home).isChecked = true
     }
 
     private fun showDeleteConfirmationDialog(songs: List<com.guruguhan.lyricsapp.data.Song>) {
