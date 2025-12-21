@@ -71,11 +71,21 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Upgraded the main screen search bar to a `com.google.android.material.textfield.TextInputLayout`.
     *   Replaced the FAB's Holo-era add icon with a modern Material Design vector asset.
     *   Converted song list items to use `MaterialCardView`, with `TextAppearance` for typography and a state-list drawable for improved visual feedback on selection.
+*   **Favorites Feature Implementation:**
+    *   Added `isFavorite: Boolean` field to `Song` data class.
+    *   Implemented database migration (version 3 to 4) to add the `isFavorite` column.
+    *   Added `getSongById(id: Int)` and `getFavoriteSongs()` functions to `SongDao`.
+    *   Exposed `getSongById` and `favoriteSongs` via `SongRepository` and `SongViewModel`.
+    *   Added `toggleFavoriteStatus(song: Song)` to `SongViewModel`.
+    *   Refactored `SongDetailActivity` to fetch song by ID via ViewModel and display/toggle favorite status with a new menu item (`ic_star`/`ic_star_border`).
+    *   Created `FavoritesActivity` to list all favorited songs.
+    *   Added "Favorites" item with `ic_favorite` icon to navigation drawer (`drawer_menu.xml`).
+    *   Updated `MainActivity` and `SettingsActivity` to navigate to `FavoritesActivity` via the side panel.
 
 **Current To-Do / Areas for Improvement:**
 1.  **Implement Share App Link functionality (e.g., Google Play Store link).**
 2.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
 3.  **Unit/Integration Testing:** Expand test coverage. - what is this? I don't understand. I know that there are currently a few random test entries, but idk where and how it is used.
 4.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-5. favourite or star button? and one page for that from the side panel? This like button comes only in the lyrics view page. not in main page.
+
 This log file summarizes the current state and outlines potential next steps.

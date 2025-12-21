@@ -11,5 +11,6 @@ data class Song(
     val composer: String,
     val deity: String? = null,
     val lyrics: String,
-    val youtubeLink: String? = null
+    val youtubeLink: String? = null,
+    val isFavorite: Boolean = false
 )

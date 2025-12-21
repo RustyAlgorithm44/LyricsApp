@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 class SongRepository(private val songDao: SongDao) {
 
     val allSongs: Flow<List<Song>> = songDao.getAllSongs()
+    val favoriteSongs: Flow<List<Song>> = songDao.getFavoriteSongs()
 
     suspend fun insert(song: Song) {
         songDao.insert(song)
@@ -28,5 +29,7 @@ class SongRepository(private val songDao: SongDao) {
     fun getSongsByDeity(deity: String) = songDao.getSongsByDeity(deity)
 
     fun getSongsByComposer(composer: String) = songDao.getSongsByComposer(composer)
+
+    fun getSongById(id: Int) = songDao.getSongById(id)
 
 }

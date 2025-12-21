@@ -54,6 +54,12 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE composer = :composer ORDER BY title ASC")
     fun getSongsByComposer(composer: String): Flow<List<Song>>
 
+    @Query("SELECT * FROM songs WHERE isFavorite = 1 ORDER BY title ASC")
+    fun getFavoriteSongs(): Flow<List<Song>>
+
+    @Query("SELECT * FROM songs WHERE id = :id")
+    fun getSongById(id: Int): Flow<Song?>
+
     @Query("DELETE FROM songs")
     suspend fun deleteAll()
 }

@@ -4,44 +4,93 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ScaleGestureDetector
 import android.view.MotionEvent
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
+import com.guruguhan.lyricsapp.data.Song
+import com.guruguhan.lyricsapp.viewmodel.SongViewModel
+import android.util.TypedValue
+import android.graphics.Color
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class SongDetailActivity : AppCompatActivity() {
 
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var currentScaleFactor = 1.0f
     private var originalTextSize: Float = 0f
-    private lateinit var detailLyricsTextView: android.widget.TextView
+    private lateinit var detailLyricsTextView: TextView
+
+    private val viewModel: SongViewModel by viewModels()
+    private var song: Song? = null
+
+    private lateinit var shareButton: MaterialButton
+    private lateinit var favoriteButton: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_detail)
 
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Lyrics"
 
-        val title = intent.getStringExtra("title") ?: ""
-        val composer = intent.getStringExtra("composer") ?: ""
-        val deity = intent.getStringExtra("deity") ?: ""
-        val lyrics = intent.getStringExtra("lyrics") ?: ""
-
-        findViewById<android.widget.TextView>(R.id.detailTitle).text = title
-        findViewById<android.widget.TextView>(R.id.detailComposer).text = composer
-        findViewById<android.widget.TextView>(R.id.detailDeity).text = deity
+        val typedValue = TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
+        toolbar.navigationIcon?.setTint(typedValue.data)
 
         detailLyricsTextView = findViewById(R.id.detailLyrics)
-        detailLyricsTextView.text = lyrics
         originalTextSize = detailLyricsTextView.textSize / resources.displayMetrics.scaledDensity
-
         scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
 
-        findViewById<android.widget.Button>(R.id.shareButton).setOnClickListener {
-            val shareText = "$title\n$deity\n$composer\n\n$lyrics"
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, shareText)
+        val songId = intent.getIntExtra("SONG_ID", -1)
+        if (songId == -1) {
+            finish()
+            return
+        }
+
+        shareButton = findViewById(R.id.shareButton)
+        favoriteButton = findViewById(R.id.favoriteButton)
+
+        lifecycleScope.launch {
+            viewModel.getSongById(songId).collectLatest { currentSong ->
+                if (currentSong != null) {
+                    song = currentSong
+                    updateUi(currentSong)
+                }
             }
-            startActivity(Intent.createChooser(shareIntent, "Share lyrics via"))
+        }
+
+        shareButton.setOnClickListener {
+            song?.let {
+                val shareText = "${it.title}\n${it.deity ?: ""}\n${it.composer}\n\n${it.lyrics}"
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share lyrics via"))
+            }
+        }
+
+        favoriteButton.setOnClickListener {
+            song?.let { viewModel.toggleFavoriteStatus(it) }
+        }
+    }
+
+    private fun updateUi(currentSong: Song) {
+        findViewById<TextView>(R.id.detailTitle).text = currentSong.title
+        findViewById<TextView>(R.id.detailComposer).text = currentSong.composer
+        findViewById<TextView>(R.id.detailDeity).text = currentSong.deity ?: ""
+        detailLyricsTextView.text = currentSong.lyrics
+
+        if (currentSong.isFavorite) {
+            favoriteButton.setText("Favorited")
+            favoriteButton.setIconResource(R.drawable.ic_star)
+        } else {
+            favoriteButton.setText("Favorite")
+            favoriteButton.setIconResource(R.drawable.ic_star_border)
         }
     }
 
@@ -55,12 +104,6 @@ class SongDetailActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(event)
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        // This method is less critical now that dispatchTouchEvent is overridden,
-        // but keeping it for completeness or if other touch handling is needed.
-        return super.onTouchEvent(event)
-    }
-
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
@@ -69,7 +112,6 @@ class SongDetailActivity : AppCompatActivity() {
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             currentScaleFactor *= detector.scaleFactor
-            // Limit the zoom in/out
             currentScaleFactor = Math.max(0.5f, Math.min(currentScaleFactor, 3.0f))
             detailLyricsTextView.textSize = originalTextSize * currentScaleFactor
             return true

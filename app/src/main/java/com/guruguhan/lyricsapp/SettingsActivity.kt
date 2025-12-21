@@ -173,6 +173,12 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 startActivity(intent)
                 finish()
             }
+            R.id.nav_favorites -> {
+                val intent = Intent(this, FavoritesActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(intent)
+                finish()
+            }
             R.id.nav_settings -> {
                 // Already in Settings
                 drawerLayout.closeDrawer(GravityCompat.START)

@@ -90,11 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     toggleSelection(song)
                 } else {
                     val intent = Intent(this, SongDetailActivity::class.java).apply {
-                        putExtra("title", song.title)
-                        putExtra("composer", song.composer)
-                        putExtra("deity", song.deity)
-                        putExtra("lyrics", song.lyrics)
-                        putExtra("youtubeLink", song.youtubeLink)
+                        putExtra("SONG_ID", song.id)
                     }
                     startActivity(intent)
                 }
@@ -248,6 +244,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_home -> {
                 // Already at home, just close the drawer
                 drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            R.id.nav_favorites -> {
+                val intent = Intent(this, FavoritesActivity::class.java)
+                startActivity(intent)
             }
             R.id.nav_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)

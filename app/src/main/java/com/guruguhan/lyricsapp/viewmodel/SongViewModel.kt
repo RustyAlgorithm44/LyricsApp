@@ -16,6 +16,7 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: SongRepository
 
     val allSongs get() = repository.allSongs
+    val favoriteSongs get() = repository.favoriteSongs
 
     private val _errorEvents = MutableSharedFlow<String>()
     val errorEvents = _errorEvents.asSharedFlow()
@@ -43,6 +44,11 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun toggleFavoriteStatus(song: Song) = viewModelScope.launch {
+        val updatedSong = song.copy(isFavorite = !song.isFavorite)
+        update(updatedSong)
+    }
+
     fun delete(song: Song) = viewModelScope.launch {
         try {
             repository.delete(song)
@@ -60,4 +66,5 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getSongsByDeity(deity: String) = repository.getSongsByDeity(deity)
     fun getSongsByComposer(composer: String) = repository.getSongsByComposer(composer)
+    fun getSongById(id: Int) = repository.getSongById(id)
 }
