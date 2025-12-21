@@ -123,6 +123,9 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                             "All songs deleted",
                             Toast.LENGTH_SHORT
                         ).show()
+
+                        // Finish the activity and go back to the previous screen
+                        finish()
                     }
                 }
                 .setNegativeButton("Cancel", null)
@@ -139,18 +142,16 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 // Already in Settings
                 drawerLayout.closeDrawer(GravityCompat.START)
             }
-            R.id.nav_categories -> {
-                Toast.makeText(this, "Categories coming soon!", Toast.LENGTH_SHORT).show()
-            }
             R.id.nav_share -> {
-                Toast.makeText(this, "Share coming soon!", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_send -> {
-                Toast.makeText(this, "Send coming soon!", Toast.LENGTH_SHORT).show()
+                shareApk()
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun shareApk() {
+        Toast.makeText(this, "Link to download the app will be available soon!", Toast.LENGTH_LONG).show()
     }
 
     override fun onBackPressed() {

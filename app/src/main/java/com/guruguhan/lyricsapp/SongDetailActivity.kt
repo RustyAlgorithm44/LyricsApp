@@ -23,13 +23,11 @@ class SongDetailActivity : AppCompatActivity() {
         val title = intent.getStringExtra("title") ?: ""
         val composer = intent.getStringExtra("composer") ?: ""
         val deity = intent.getStringExtra("deity") ?: ""
-        val category = intent.getStringExtra("category") ?: ""
         val lyrics = intent.getStringExtra("lyrics") ?: ""
 
         findViewById<android.widget.TextView>(R.id.detailTitle).text = title
         findViewById<android.widget.TextView>(R.id.detailComposer).text = composer
         findViewById<android.widget.TextView>(R.id.detailDeity).text = deity
-        findViewById<android.widget.TextView>(R.id.detailCategory).text = category
 
         detailLyricsTextView = findViewById(R.id.detailLyrics)
         detailLyricsTextView.text = lyrics

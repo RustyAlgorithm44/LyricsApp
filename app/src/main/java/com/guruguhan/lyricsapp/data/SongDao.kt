@@ -29,7 +29,6 @@ interface SongDao {
        OR composer LIKE '%' || :query || '%'
        OR deity LIKE '%' || :query || '%'
        OR lyrics LIKE '%' || :query || '%'
-       OR category LIKE '%' || :query || '%'
     ORDER BY title ASC
 """)
     fun searchSongs(query: String): kotlinx.coroutines.flow.Flow<List<Song>>

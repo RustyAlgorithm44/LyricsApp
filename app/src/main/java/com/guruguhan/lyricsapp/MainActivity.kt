@@ -78,7 +78,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         putExtra("title", song.title)
                         putExtra("composer", song.composer)
                         putExtra("deity", song.deity)
-                        putExtra("category", song.category)
                         putExtra("lyrics", song.lyrics)
                         putExtra("youtubeLink", song.youtubeLink)
                     }
@@ -235,12 +234,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
             }
-            R.id.nav_categories -> Toast.makeText(this, "Categories coming soon!", Toast.LENGTH_SHORT).show()
-            R.id.nav_share -> Toast.makeText(this, "Share coming soon!", Toast.LENGTH_SHORT).show()
-            R.id.nav_send -> Toast.makeText(this, "Send coming soon!", Toast.LENGTH_SHORT).show()
+            R.id.nav_share -> shareApk()
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun shareApk() {
+        Toast.makeText(this, "Link to download the app will be available soon!", Toast.LENGTH_LONG).show()
     }
 
     private fun toggleSelection(song: Song) {
@@ -331,7 +332,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
         val deityInput = dialogView.findViewById<android.widget.EditText>(R.id.inputDeity)
-        val categoryInput = dialogView.findViewById<android.widget.EditText>(R.id.inputCategory)
         val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
@@ -343,7 +343,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val title = titleInput.text.toString().trim()
                 val composer = composerInput.text.toString().trim()
                 val deity = deityInput.text.toString().trim().nullIfBlank()
-                val category = categoryInput.text.toString().trim()
                 val lyrics = lyricsInput.text.toString().trim()
                 val youtubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
 
@@ -358,7 +357,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         title = title,
                         composer = composer,
                         deity = deity,
-                        category = category,
                         lyrics = lyrics,
                         youtubeLink = youtubeLink
                     )
@@ -375,7 +373,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
         val deityInput = dialogView.findViewById<android.widget.EditText>(R.id.inputDeity)
-        val categoryInput = dialogView.findViewById<android.widget.EditText>(R.id.inputCategory)
         val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
@@ -383,7 +380,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         titleInput.setText(song.title)
         composerInput.setText(song.composer)
         deityInput.setText(song.deity)
-        categoryInput.setText(song.category)
         lyricsInput.setText(song.lyrics)
         youtubeLinkInput.setText(song.youtubeLink)
 
@@ -394,7 +390,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val updatedTitle = titleInput.text.toString().trim()
                 val updatedComposer = composerInput.text.toString().trim()
                 val updatedDeity = deityInput.text.toString().trim().nullIfBlank()
-                val updatedCategory = categoryInput.text.toString().trim()
                 val updatedLyrics = lyricsInput.text.toString().trim()
                 val updatedYoutubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
 
@@ -409,7 +404,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         title = updatedTitle,
                         composer = updatedComposer,
                         deity = updatedDeity,
-                        category = updatedCategory,
                         lyrics = updatedLyrics,
                         youtubeLink = updatedYoutubeLink
                     )

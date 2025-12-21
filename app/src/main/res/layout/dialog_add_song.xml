@@ -24,12 +24,6 @@
         android:layout_height="wrap_content"/>
 
     <EditText
-        android:id="@+id/inputCategory"
-        android:hint="Category"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <EditText
         android:id="@+id/inputLyrics"
         android:hint="Lyrics"
         android:inputType="textMultiLine"

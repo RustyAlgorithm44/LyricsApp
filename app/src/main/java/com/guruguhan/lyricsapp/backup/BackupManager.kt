@@ -19,7 +19,6 @@ object BackupManager {
                 put("title", song.title)
                 put("composer", song.composer)
                 put("deity", song.deity)
-                put("category", song.category)
                 put("lyrics", song.lyrics)
                 put("youtubeLink", song.youtubeLink)
             }
@@ -43,7 +42,6 @@ object BackupManager {
                 obj.optString("artist", "")
             }
             val deity = obj.optString("deity", null)
-            val category = obj.getString("category")
             val lyrics = obj.getString("lyrics")
             val youtubeLink = obj.optString("youtubeLink", null)
 
@@ -54,7 +52,6 @@ object BackupManager {
                         title = title,
                         composer = composer,
                         deity = deity,
-                        category = category,
                         lyrics = lyrics,
                         youtubeLink = youtubeLink
                     )

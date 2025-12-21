@@ -4,12 +4,12 @@
 The LyricsApp is an Android application designed to help users store, manage, and view song lyrics. It utilizes a standard MVVM (Model-View-ViewModel) architecture with Room for local data persistence. The app is customized for Carnatic music.
 
 **Current Features:**
-*   **Add Songs:** Users can add new songs with their titles, composer, deity, category, lyrics, and optional YouTube link.
-*   **Search Songs:** Users can search for songs by title, composer, deity, category, or lyrics.
+*   **Add Songs:** Users can add new songs with their titles, composer, deity, lyrics, and optional YouTube link.
+*   **Search Songs:** Users can search for songs by title, composer, deity, or lyrics.
 *   **Edit/Delete Songs:** Users can edit or delete existing songs from the collection via long-press on the song list.
 *   **View Song List:** Displays a list of all stored songs.
 *   **Contextual Action Mode:** Manual implementation for edit/delete in the main toolbar.
-*   **Side Panel (Navigation Drawer):** Access to Settings and Categories (placeholder).
+*   **Side Panel (Navigation Drawer):** Access to Settings and Share (placeholder).
 *   **Pinch-to-Zoom Lyrics:** Improved functionality in `SongDetailActivity` allowing scaling and panning.
 *   **Home Page Organization:** Filter songs by Deity or Composer using Chips.
 
@@ -60,12 +60,17 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Selection Feedback:**
     *   Visually highlight the selected item during long-press.
     *   Allow deselecting by tapping the item again.
-*   *   Fixed: Lyrics field height in "Add Song" dialog.
+*   **Fixed:** Lyrics field height in "Add Song" dialog.
+*   **UI Simplification:**
+    *   Removed "Category" field from the `Song` entity and all related UI components.
+    *   Simplified the navigation drawer to include only "Settings" and "Share".
+    *   Reverted "Share APK" functionality to a placeholder in both `MainActivity.kt` and `SettingsActivity.kt`.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
-2.  **Categories Implementation:** Currently a placeholder in the drawer.
-3.  **Unit/Integration Testing:** Expand test coverage.
-4.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+1.  **Implement Share App Link functionality (e.g., Google Play Store link).**
+2.  **Explore sharing individual songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
+3.  **Full `SettingsActivity` Implementation:** Add features like theme switching.
+4.  **Unit/Integration Testing:** Expand test coverage.
+5.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
 
 This log file summarizes the current state and outlines potential next steps.

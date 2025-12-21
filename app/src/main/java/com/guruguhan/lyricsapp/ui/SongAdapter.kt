@@ -43,7 +43,6 @@ class SongAdapter(
         private val title: TextView = itemView.findViewById(R.id.titleText)
         private val composer: TextView = itemView.findViewById(R.id.composerText)
         private val deity: TextView = itemView.findViewById(R.id.deityText)
-        private val category: TextView = itemView.findViewById(R.id.categoryText)
 
         fun bind(
             song: Song,
@@ -54,7 +53,6 @@ class SongAdapter(
             title.text = song.title
             composer.text = song.composer
             deity.text = song.deity ?: ""
-            category.text = song.category
 
             itemView.setBackgroundColor(
                 if (isSelected) ContextCompat.getColor(itemView.context, R.color.selection_color)
