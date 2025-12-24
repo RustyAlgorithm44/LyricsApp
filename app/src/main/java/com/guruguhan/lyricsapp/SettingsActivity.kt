@@ -24,7 +24,6 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
-    private var isThemeBeingChanged = false
 
 
     private val exportLauncher =
@@ -153,8 +152,6 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         }
 
         themeChipGroup.setOnCheckedChangeListener { _, checkedId ->
-            if (isThemeBeingChanged) return@setOnCheckedChangeListener
-            isThemeBeingChanged = true
 
             val theme = when (checkedId) {
                 R.id.lightThemeChip -> ThemeHelper.LIGHT_MODE

@@ -96,6 +96,9 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Implement Share App Link functionality:** Replaced the placeholder "Share" toast message with a standard Android share intent to share a predefined text message with a placeholder for the app's link.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
-2.  **Unit/Integration Testing:** Expand test coverage.
-3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+1. Language can be a drop down, coz there aren't gonna be many. It is just going to be English, Tamil, Hindi, Sanskrit and Other. If the option other is chosen, then it should ask what language and the lyrics. As it is doing now.
+2. Update the readme file to include all recent improvements, including addition of the language switching etc. 
+3. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
+4.  **Unit/Integration Testing:** Expand test coverage.
+5.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+6. In settings page, double clicking on "Dark" or "Light" or "system" unselects it and then it stays in dark. I haven't tried all buttons properly.. but it happens. fix that.
