@@ -81,11 +81,24 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Created `FavoritesActivity` to list all favorited songs.
     *   Added "Favorites" item with `ic_favorite` icon to navigation drawer (`drawer_menu.xml`).
     *   Updated `MainActivity` and `SettingsActivity` to navigate to `FavoritesActivity` via the side panel.
+*   **Updated Project Documentation:** Revised `README.md` to be more relevant and up-to-date with the current features and architecture.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Implement Share App Link functionality (e.g., Google Play Store link).**
-2.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
-3.  **Unit/Integration Testing:** Expand test coverage. - what is this? I don't understand. I know that there are currently a few random test entries, but idk where and how it is used.
-4.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-
-This log file summarizes the current state and outlines potential next steps.
+1.  **Fix and Re-implement Deity Suggestions:**
+    *   **Goal:** Show previously added deities in a dropdown when adding or editing a song.
+    *   **Issue:** The initial implementation caused a persistent app crash when clicking the '+' (Add Song) button. The changes were reverted to restore stability.
+    *   **Next Steps:** This needs to be re-investigated. The crash is likely caused by a `ClassCastException` or an issue with inflating the updated Material Design components (`AutoCompleteTextView`, `TextInputLayout`) within the `AlertDialog`.
+2.  **Implement Multi-Language Lyrics Support:**
+    *   **Goal:** Allow a single song to have lyrics in multiple languages, with a UI to switch between them.
+    *   **Data Model:**
+        *   Change the `lyrics` field in the `Song` entity from `String` to `Map<String, String>` (Language -> Lyrics Text).
+        *   Implement a Room `TypeConverter` to convert the `Map` to/from a JSON string for database storage.
+        *   Create a database migration to safely update the existing `lyrics` column to the new format.
+    *   **UI/UX:**
+        *   **Add/Edit Dialog:** Redesign the dialog to allow users to add multiple language-lyrics pairs (e.g., using a dynamic list or tabbed interface).
+        *   **Song Detail View:** Add `Chip`s or `Tab`s to the song detail screen, allowing users to select the language for the lyrics they want to view.
+        *   **Navigation:** Add a "Languages" item to the navigation drawer to view all songs grouped by language.
+3.  **Implement Share App Link functionality (e.g., Google Play Store link).**
+4.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
+5.  **Unit/Integration Testing:** Expand test coverage.
+6.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
