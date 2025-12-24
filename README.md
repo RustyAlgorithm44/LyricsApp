@@ -27,6 +27,7 @@ This project is a continuously evolving Android application, demonstrating best 
 ### 📖 Reading & Sharing
 *   **Pinch-to-Zoom:** Zoom and pan lyrics in the detail view for better readability.
 *   **Share Functionality:** Share song details with others.
+*   **Multi-Language Support:** Store lyrics for a single song in multiple languages (e.g., English, Tamil, Sanskrit) and easily switch between them in the detail view.
 
 ### 🎨 Modern UI & Theming
 *   **Material 3 Design:** Incorporates modern Material Design components.
@@ -36,7 +37,7 @@ This project is a continuously evolving Android application, demonstrating best 
 
 ### 💾 Offline Backup & Restore
 *   **Local Backup:** Export your entire song library to a JSON file.
-*   **Non-Destructive Import:** Restore from a backup without creating duplicates, now including the `youtubeLink` field.
+*   **Non-Destructive Import:** Restore from a backup without creating duplicates, now including the `youtubeLink` field. The import logic is additive and avoids overwriting existing data.
 
 ---
 

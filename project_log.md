@@ -91,16 +91,21 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Implemented a Room `TypeConverter` and a database migration (v4 to v5) to handle the new data structure.
     *   Redesigned the Add/Edit dialog to allow dynamically adding, editing, and removing multiple language-lyrics pairs.
     *   Updated the Song Detail view to display lyrics with a language switching button in the bottom bar (replacing the ChipGroup).
-    *   Removed the "By Language" chip from the main screen and the "Languages" item from the navigation drawer.
     *   The language switching button in SongDetailActivity is now a small, round, icon-only button with an outlined style.
 *   **Implement Share App Link functionality:** Replaced the placeholder "Share" toast message with a standard Android share intent to share a predefined text message with a placeholder for the app's link.
 *   **Fix Theme Selection Bug:** Fixed a bug in the Settings page where theme selection would stop working after the first change. Removed a faulty flag that prevented subsequent updates.
 *   **Language Input Dropdown:** Implemented a dropdown for language selection in the Add/Edit song dialog with predefined languages and an "Other" option that reveals a text input field.
-*   **Dialog Validation UX:** Improved Add/Edit song dialog validation to prevent dismissal on failure, instead showing error messages for invalid fields, and only dismissing upon successful validation.
 *   **Prevent Duplicate Language Entries:** The "Add Language" dropdown now filters out languages already in use for the current song, preventing duplicates.
+*   **Dialog Validation UX:** Improved Add/Edit song dialog validation to prevent dismissal on failure, instead showing error messages for invalid fields, and only dismissing upon successful validation.
+*   **Conditional Deity Input:** The Add/Edit song dialog now conditionally displays a plain text input for "Deity" if no deities have been added yet. If deities exist, it displays an `AutoCompleteTextView` with a dropdown of existing deities.
+*   **Added Kannada to Language List:** Added "Kannada" to the list of available languages for song lyrics.
+*   **Mandatory Deity and Toast Clarification:** The "Deity" field is now mandatory when adding or editing a song. The toast message for incomplete lyrics has been clarified to be more user-friendly.
+*   **Fix Language Spinner Text Truncation:** Corrected the display of language names in the spinner dropdown by adjusting the layout weights to give the spinner more horizontal space, ensuring full language names are visible without truncation. (Note: This can be further improved)
+*   **Updated Language Switching Icon:** Changed the language switching icon in the song detail view to a lang icon for better user recognition. ([Link to icon](https://fonts.google.com/icons?selected=Material+Symbols+Outlined:translate_indic:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=language&icon.size=24&icon.color=%23e3e3e3&icon.platform=android))
+*   **Updated README:** Updated the `README.md` file to include all recent feature additions and improvements.
+*   **Incremented App Version:** Incremented the app version to 1.2.3.
 
 **Current To-Do / Areas for Improvement:**
-2. Update the readme file to include all recent improvements, including addition of the language switching etc. 
-3. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
-4.  **Unit/Integration Testing:** Expand test coverage.
-5.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
+2.  **Unit/Integration Testing:** Expand test coverage.
+3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**

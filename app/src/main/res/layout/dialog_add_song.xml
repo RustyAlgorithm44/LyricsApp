@@ -11,15 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <EditText
+        android:id="@+id/inputDeityPlain"
+        android:hint="Deity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputDeityLayout"
+        android:id="@+id/inputDeityDropdownLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Deity"
+        android:visibility="gone"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
         <AutoCompleteTextView
-            android:id="@+id/inputDeity"
+            android:id="@+id/autoCompleteDeityInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapWords" />

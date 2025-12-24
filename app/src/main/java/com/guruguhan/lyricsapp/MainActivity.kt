@@ -367,7 +367,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
         val removeButton = rowView.findViewById<android.widget.ImageButton>(R.id.removeLanguageButton)
 
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, availableLanguages)
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, availableLanguages)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         languageSpinner.adapter = spinnerAdapter
 
@@ -409,13 +409,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
+        val inputDeityPlain = dialogView.findViewById<android.widget.EditText>(R.id.inputDeityPlain)
+        val inputDeityDropdownLayout = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.inputDeityDropdownLayout)
+        val autoCompleteDeityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.autoCompleteDeityInput)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
-        val deityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.inputDeity)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
         val lyricsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.lyricsContainer)
         val addLanguageButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.addLanguageButton)
-        val allLanguages = listOf("English", "Tamil", "Hindi", "Sanskrit", "Other")
+        val allLanguages = listOf("English", "தமிழ்", "संस्कृतम्", "ಕನ್ನಡ", "Other")
 
         // Add one empty row to start
         addLanguageInputRow(lyricsContainer, allLanguages)
@@ -439,12 +441,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         lifecycleScope.launch {
             viewModel.uniqueDeities.collect { deities ->
-                val adapter = ArrayAdapter(
-                    this@MainActivity,
-                    android.R.layout.simple_dropdown_item_1line,
-                    deities
-                )
-                deityInput.setAdapter(adapter)
+                if (deities.isEmpty()) {
+                    inputDeityPlain.visibility = android.view.View.VISIBLE
+                    inputDeityDropdownLayout.visibility = android.view.View.GONE
+                } else {
+                    inputDeityPlain.visibility = android.view.View.GONE
+                    inputDeityDropdownLayout.visibility = android.view.View.VISIBLE
+                    val adapter = ArrayAdapter(
+                        this@MainActivity,
+                        android.R.layout.simple_dropdown_item_1line,
+                        deities
+                    )
+                    autoCompleteDeityInput.setAdapter(adapter)
+                }
             }
         }
 
@@ -458,7 +467,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val title = titleInput.text.toString().trim()
             val composer = composerInput.text.toString().trim()
-            val deity = deityInput.text.toString().trim().nullIfBlank()
+            val deity = if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
+                inputDeityPlain.text.toString().trim().nullIfBlank()
+            } else {
+                autoCompleteDeityInput.text.toString().trim().nullIfBlank()
+            }
             val youtubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
 
             titleInput.error = null // Clear previous errors
@@ -507,6 +520,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return@setOnClickListener
             }
 
+            if (deity.isNullOrBlank()) {
+                if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
+                    inputDeityPlain.error = "Deity is required!"
+                } else {
+                    inputDeityDropdownLayout.error = "Deity is required!"
+                }
+                return@setOnClickListener
+            }
+
             if (lyricsMap.isEmpty() && lyricsContainer.childCount == 0) { // No lyrics rows at all
                 android.widget.Toast.makeText(
                     this,
@@ -517,7 +539,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             } else if (!isValidLyrics) {
                 android.widget.Toast.makeText(
                     this,
-                    "Please fill all language/lyrics fields or leave both empty in a row!",
+                    "Incomplete lyrics entry found. Please complete or clear the row.",
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -540,17 +562,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
+        val inputDeityPlain = dialogView.findViewById<android.widget.EditText>(R.id.inputDeityPlain)
+        val inputDeityDropdownLayout = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.inputDeityDropdownLayout)
+        val autoCompleteDeityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.autoCompleteDeityInput)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
-        val deityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.inputDeity)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
         val lyricsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.lyricsContainer)
         val addLanguageButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.addLanguageButton)
-        val allLanguages = listOf("English", "Tamil", "Hindi", "Sanskrit", "Other")
+        val allLanguages = listOf("English", "தமிழ்", "संस्कृतम्", "ಕನ್ನಡ", "Other")
 
         titleInput.setText(song.title)
         composerInput.setText(song.composer)
-        deityInput.setText(song.deity)
         youtubeLinkInput.setText(song.youtubeLink)
 
         // Populate existing lyrics - for simplicity in edit mode, we provide all languages to each spinner.
@@ -582,12 +605,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         lifecycleScope.launch {
             viewModel.uniqueDeities.collect { deities ->
-                val adapter = ArrayAdapter(
-                    this@MainActivity,
-                    android.R.layout.simple_dropdown_item_1line,
-                    deities
-                )
-                deityInput.setAdapter(adapter)
+                if (deities.isEmpty()) {
+                    inputDeityPlain.visibility = android.view.View.VISIBLE
+                    inputDeityDropdownLayout.visibility = android.view.View.GONE
+                    inputDeityPlain.setText(song.deity) // Set existing deity to plain EditText
+                } else {
+                    inputDeityPlain.visibility = android.view.View.GONE
+                    inputDeityDropdownLayout.visibility = android.view.View.VISIBLE
+                    val adapter = ArrayAdapter(
+                        this@MainActivity,
+                        android.R.layout.simple_dropdown_item_1line,
+                        deities
+                    )
+                    autoCompleteDeityInput.setAdapter(adapter)
+                    autoCompleteDeityInput.setText(song.deity) // Set existing deity to AutoCompleteTextView
+                }
             }
         }
 
@@ -601,7 +633,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val updatedTitle = titleInput.text.toString().trim()
             val updatedComposer = composerInput.text.toString().trim()
-            val updatedDeity = deityInput.text.toString().trim().nullIfBlank()
+            val updatedDeity = if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
+                inputDeityPlain.text.toString().trim().nullIfBlank()
+            } else {
+                autoCompleteDeityInput.text.toString().trim().nullIfBlank()
+            }
             val updatedYoutubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
 
             titleInput.error = null // Clear previous errors
@@ -648,6 +684,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return@setOnClickListener
             }
 
+            if (updatedDeity.isNullOrBlank()) {
+                if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
+                    inputDeityPlain.error = "Deity is required!"
+                } else {
+                    inputDeityDropdownLayout.error = "Deity is required!"
+                }
+                return@setOnClickListener
+            }
+
             if (lyricsMap.isEmpty() && lyricsContainer.childCount == 0) { // No lyrics rows at all
                 android.widget.Toast.makeText(
                     this,
@@ -658,7 +703,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             } else if (!isValidLyrics) {
                 android.widget.Toast.makeText(
                     this,
-                    "Please fill all language/lyrics fields or leave both empty in a row!",
+                    "Incomplete lyrics entry found. Please complete or clear the row.",
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
