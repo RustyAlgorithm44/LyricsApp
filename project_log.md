@@ -94,11 +94,13 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Removed the "By Language" chip from the main screen and the "Languages" item from the navigation drawer.
     *   The language switching button in SongDetailActivity is now a small, round, icon-only button with an outlined style.
 *   **Implement Share App Link functionality:** Replaced the placeholder "Share" toast message with a standard Android share intent to share a predefined text message with a placeholder for the app's link.
+*   **Fix Theme Selection Bug:** Fixed a bug in the Settings page where theme selection would stop working after the first change. Removed a faulty flag that prevented subsequent updates.
+*   **Language Input Dropdown:** Implemented a dropdown for language selection in the Add/Edit song dialog with predefined languages and an "Other" option that reveals a text input field.
+*   **Dialog Validation UX:** Improved Add/Edit song dialog validation to prevent dismissal on failure, instead showing error messages for invalid fields, and only dismissing upon successful validation.
+*   **Prevent Duplicate Language Entries:** The "Add Language" dropdown now filters out languages already in use for the current song, preventing duplicates.
 
 **Current To-Do / Areas for Improvement:**
-1. Language can be a drop down, coz there aren't gonna be many. It is just going to be English, Tamil, Hindi, Sanskrit and Other. If the option other is chosen, then it should ask what language and the lyrics. As it is doing now.
 2. Update the readme file to include all recent improvements, including addition of the language switching etc. 
 3. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 4.  **Unit/Integration Testing:** Expand test coverage.
 5.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-6. In settings page, double clicking on "Dark" or "Light" or "system" unselects it and then it stays in dark. I haven't tried all buttons properly.. but it happens. fix that.
