@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -352,10 +353,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
-        val deityInput = dialogView.findViewById<android.widget.EditText>(R.id.inputDeity)
+        val deityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.inputDeity)
         val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
+
+        lifecycleScope.launch {
+            viewModel.uniqueDeities.collect { deities ->
+                val adapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    deities
+                )
+                deityInput.setAdapter(adapter)
+            }
+        }
 
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Add Song")
@@ -393,7 +405,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
-        val deityInput = dialogView.findViewById<android.widget.EditText>(R.id.inputDeity)
+        val deityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.inputDeity)
         val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
@@ -403,6 +415,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         deityInput.setText(song.deity)
         lyricsInput.setText(song.lyrics)
         youtubeLinkInput.setText(song.youtubeLink)
+
+        lifecycleScope.launch {
+            viewModel.uniqueDeities.collect { deities ->
+                val adapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    deities
+                )
+                deityInput.setAdapter(adapter)
+            }
+        }
 
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Edit Song")

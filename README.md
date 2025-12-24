@@ -13,7 +13,7 @@ This project is a continuously evolving Android application, demonstrating best 
 *   **Input Validation:** Prevents adding songs with blank titles or lyrics.
 *   **Rich Song Display:** View songs in a clean, filterable list using `MaterialCardView` for a modern look.
 
-###  organizzazione & Navigation
+###  Organization & Navigation
 *   **Home Page Filtering:** Organize and filter songs by "Deity" or "Composer" using `ChipGroup`.
 *   **Grouped Views:** Drill down from a list of all deities or composers to a filtered song list.
 *   **Navigation Drawer:** Easy access to Home, Favorites, and Settings.
@@ -26,7 +26,7 @@ This project is a continuously evolving Android application, demonstrating best 
 
 ### 📖 Reading & Sharing
 *   **Pinch-to-Zoom:** Zoom and pan lyrics in the detail view for better readability.
-*   **Share Functionality:** Share song details with others (currently a placeholder).
+*   **Share Functionality:** Share song details with others.
 
 ### 🎨 Modern UI & Theming
 *   **Material 3 Design:** Incorporates modern Material Design components.

@@ -84,10 +84,9 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Updated Project Documentation:** Revised `README.md` to be more relevant and up-to-date with the current features and architecture.
 
 **Current To-Do / Areas for Improvement:**
-1.  **Fix and Re-implement Deity Suggestions:**
-    *   **Goal:** Show previously added deities in a dropdown when adding or editing a song.
-    *   **Issue:** The initial implementation caused a persistent app crash when clicking the '+' (Add Song) button. The changes were reverted to restore stability.
-    *   **Next Steps:** This needs to be re-investigated. The crash is likely caused by a `ClassCastException` or an issue with inflating the updated Material Design components (`AutoCompleteTextView`, `TextInputLayout`) within the `AlertDialog`.
+1.   **Fix and Re-implement Deity Suggestions:**
+    *   Implemented showing previously added deities in a dropdown when adding or editing a song.
+    *   **Note:** The current UI for the dropdown could be further improved.
 2.  **Implement Multi-Language Lyrics Support:**
     *   **Goal:** Allow a single song to have lyrics in multiple languages, with a UI to switch between them.
     *   **Data Model:**
