@@ -60,7 +60,7 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Selection Feedback:**
     *   Visually highlight the selected item during long-press.
     *   Allow deselecting by tapping the item again.
-*   **Fixed:** Lyrics field height in "Add Song" dialog.
+*   **Fixed:** Lyrics field in "Add Song" dialog.
 *   **UI Simplification:**
     *   Removed "Category" field from the `Song` entity and all related UI components.
     *   Simplified the navigation drawer to include only "Settings" and "Share".
@@ -82,22 +82,20 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Added "Favorites" item with `ic_favorite` icon to navigation drawer (`drawer_menu.xml`).
     *   Updated `MainActivity` and `SettingsActivity` to navigate to `FavoritesActivity` via the side panel.
 *   **Updated Project Documentation:** Revised `README.md` to be more relevant and up-to-date with the current features and architecture.
-
-**Current To-Do / Areas for Improvement:**
-1.   **Fix and Re-implement Deity Suggestions:**
+*   **Fix and Re-implement Deity Suggestions:**
     *   Implemented showing previously added deities in a dropdown when adding or editing a song.
     *   **Note:** The current UI for the dropdown could be further improved.
-2.  **Implement Multi-Language Lyrics Support:**
+*   **Implement Multi-Language Lyrics Support:**
     *   **Goal:** Allow a single song to have lyrics in multiple languages, with a UI to switch between them.
-    *   **Data Model:**
-        *   Change the `lyrics` field in the `Song` entity from `String` to `Map<String, String>` (Language -> Lyrics Text).
-        *   Implement a Room `TypeConverter` to convert the `Map` to/from a JSON string for database storage.
-        *   Create a database migration to safely update the existing `lyrics` column to the new format.
-    *   **UI/UX:**
-        *   **Add/Edit Dialog:** Redesign the dialog to allow users to add multiple language-lyrics pairs (e.g., using a dynamic list or tabbed interface).
-        *   **Song Detail View:** Add `Chip`s or `Tab`s to the song detail screen, allowing users to select the language for the lyrics they want to view.
-        *   **Navigation:** Add a "Languages" item to the navigation drawer to view all songs grouped by language.
-3.  **Implement Share App Link functionality (e.g., Google Play Store link).**
-4.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).**
-5.  **Unit/Integration Testing:** Expand test coverage.
-6.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+    *   Changed the `lyrics` field in the `Song` entity to `Map<String, String>`.
+    *   Implemented a Room `TypeConverter` and a database migration (v4 to v5) to handle the new data structure.
+    *   Redesigned the Add/Edit dialog to allow dynamically adding, editing, and removing multiple language-lyrics pairs.
+    *   Updated the Song Detail view to display lyrics with a language switching button in the bottom bar (replacing the ChipGroup).
+    *   Removed the "By Language" chip from the main screen and the "Languages" item from the navigation drawer.
+    *   The language switching button in SongDetailActivity is now a small, round, icon-only button with an outlined style.
+*   **Implement Share App Link functionality:** Replaced the placeholder "Share" toast message with a standard Android share intent to share a predefined text message with a placeholder for the app's link.
+
+**Current To-Do / Areas for Improvement:**
+1.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
+2.  **Unit/Integration Testing:** Expand test coverage.
+3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**

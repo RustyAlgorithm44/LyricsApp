@@ -71,10 +71,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/shareButton"
-                android:text="Share Lyrics"
+                android:text="Share"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -84,7 +85,20 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_star_border"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/switchLanguageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                app:icon="@drawable/ic_menu"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                style="?attr/materialButtonOutlinedStyle" />
         </LinearLayout>
 
     </LinearLayout>

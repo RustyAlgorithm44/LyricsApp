@@ -198,7 +198,12 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     private fun shareApk() {
-        Toast.makeText(this, "Link to download the app will be available soon!", Toast.LENGTH_LONG).show()
+        val shareText = "Check out the LyricsApp! Download it from: [Google Play Store link placeholder]"
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share App via"))
     }
 
     override fun onBackPressed() {

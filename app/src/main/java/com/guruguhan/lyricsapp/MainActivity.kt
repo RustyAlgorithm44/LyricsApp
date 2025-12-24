@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var currentViewMode = ViewMode.ALL_SONGS
     private var observeJob: Job? = null
-    private var currentFilterType: String? = null // "DEITY" or "COMPOSER"
+    private var currentFilterType: String? = null // "DEITY", "COMPOSER"
     private var currentFilterValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -243,8 +243,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_home -> {
-                // Already at home, just close the drawer
-                drawerLayout.closeDrawer(GravityCompat.START)
+                findViewById<Chip>(R.id.chipAll).isChecked = true
             }
             R.id.nav_favorites -> {
                 val intent = Intent(this, FavoritesActivity::class.java)
@@ -261,7 +260,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun shareApk() {
-        Toast.makeText(this, "Link to download the app will be available soon!", Toast.LENGTH_LONG).show()
+        val shareText = "Check out the LyricsApp! Download it from: [Google Play Store link placeholder]"
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share App via"))
     }
 
     private fun toggleSelection(song: Song) {
@@ -295,7 +299,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             updateUI()
         } else if (currentViewMode != ViewMode.ALL_SONGS) {
             findViewById<Chip>(R.id.chipAll).isChecked = true
-            currentViewMode = ViewMode.ALL_SONGS
         } else {
             super.onBackPressed()
         }
@@ -348,15 +351,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
     }
 
+    private fun addLanguageInputRow(container: android.widget.LinearLayout, language: String = "", lyrics: String = "") {
+        val inflater = layoutInflater
+        val rowView = inflater.inflate(R.layout.item_language_input, container, false)
+
+        val languageInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLanguage)
+        val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
+        val removeButton = rowView.findViewById<android.widget.ImageButton>(R.id.removeLanguageButton)
+
+        languageInput.setText(language)
+        lyricsInput.setText(lyrics)
+
+        removeButton.setOnClickListener {
+            container.removeView(rowView)
+        }
+
+        container.addView(rowView)
+    }
+
     private fun showAddSongDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
 
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
         val deityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.inputDeity)
-        val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
+        val lyricsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.lyricsContainer)
+        val addLanguageButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.addLanguageButton)
+
+        // Add one empty row to start
+        addLanguageInputRow(lyricsContainer)
+
+        addLanguageButton.setOnClickListener {
+            addLanguageInputRow(lyricsContainer)
+        }
 
         lifecycleScope.launch {
             viewModel.uniqueDeities.collect { deities ->
@@ -376,13 +405,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val title = titleInput.text.toString().trim()
                 val composer = composerInput.text.toString().trim()
                 val deity = deityInput.text.toString().trim().nullIfBlank()
-                val lyrics = lyricsInput.text.toString().trim()
                 val youtubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
 
-                if (title.isBlank() || lyrics.isBlank()) {
+                val lyricsMap = mutableMapOf<String, String>()
+                for (i in 0 until lyricsContainer.childCount) {
+                    val rowView = lyricsContainer.getChildAt(i)
+                    val languageInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLanguage)
+                    val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
+                    val lang = languageInput.text.toString().trim()
+                    val lyr = lyricsInput.text.toString().trim()
+                    if (lang.isNotBlank() && lyr.isNotBlank()) {
+                        lyricsMap[lang] = lyr
+                    }
+                }
+
+                if (title.isBlank() || lyricsMap.isEmpty()) {
                     android.widget.Toast.makeText(
                         this,
-                        "Song title and lyrics are required!",
+                        "Song title and at least one complete language/lyrics pair are required!",
                         android.widget.Toast.LENGTH_SHORT
                     ).show()
                 } else {
@@ -390,7 +430,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         title = title,
                         composer = composer,
                         deity = deity,
-                        lyrics = lyrics,
+                        lyrics = lyricsMap,
                         youtubeLink = youtubeLink
                     )
                     viewModel.insert(song)
@@ -406,15 +446,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
         val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
         val deityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.inputDeity)
-        val lyricsInput = dialogView.findViewById<android.widget.EditText>(R.id.inputLyrics)
         val youtubeLinkInput =
             dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
+        val lyricsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.lyricsContainer)
+        val addLanguageButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.addLanguageButton)
 
         titleInput.setText(song.title)
         composerInput.setText(song.composer)
         deityInput.setText(song.deity)
-        lyricsInput.setText(song.lyrics)
         youtubeLinkInput.setText(song.youtubeLink)
+
+        // Populate existing lyrics
+        if (song.lyrics.isNotEmpty()) {
+            song.lyrics.forEach { (lang, lyr) ->
+                addLanguageInputRow(lyricsContainer, lang, lyr)
+            }
+        } else {
+            addLanguageInputRow(lyricsContainer) // Add an empty row if no lyrics exist
+        }
+
+        addLanguageButton.setOnClickListener {
+            addLanguageInputRow(lyricsContainer)
+        }
 
         lifecycleScope.launch {
             viewModel.uniqueDeities.collect { deities ->
@@ -434,13 +487,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val updatedTitle = titleInput.text.toString().trim()
                 val updatedComposer = composerInput.text.toString().trim()
                 val updatedDeity = deityInput.text.toString().trim().nullIfBlank()
-                val updatedLyrics = lyricsInput.text.toString().trim()
                 val updatedYoutubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
 
-                if (updatedTitle.isBlank() || updatedLyrics.isBlank()) {
+                val lyricsMap = mutableMapOf<String, String>()
+                for (i in 0 until lyricsContainer.childCount) {
+                    val rowView = lyricsContainer.getChildAt(i)
+                    val languageInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLanguage)
+                    val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
+                    val lang = languageInput.text.toString().trim()
+                    val lyr = lyricsInput.text.toString().trim()
+                    if (lang.isNotBlank() && lyr.isNotBlank()) {
+                        lyricsMap[lang] = lyr
+                    }
+                }
+
+                if (updatedTitle.isBlank() || lyricsMap.isEmpty()) {
                     android.widget.Toast.makeText(
                         this,
-                        "Song title and lyrics are required!",
+                        "Song title and at least one complete language/lyrics pair are required!",
                         android.widget.Toast.LENGTH_SHORT
                     ).show()
                 } else {
@@ -448,7 +512,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         title = updatedTitle,
                         composer = updatedComposer,
                         deity = updatedDeity,
-                        lyrics = updatedLyrics,
+                        lyrics = lyricsMap,
                         youtubeLink = updatedYoutubeLink
                     )
                     viewModel.update(updatedSong)

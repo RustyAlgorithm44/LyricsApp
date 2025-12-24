@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
+import kotlinx.coroutines.flow.map
+
 class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: SongRepository

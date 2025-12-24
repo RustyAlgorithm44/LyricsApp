@@ -19,7 +19,7 @@ object BackupManager {
                 put("title", song.title)
                 put("composer", song.composer)
                 put("deity", song.deity)
-                put("lyrics", song.lyrics)
+                put("lyrics", JSONObject(song.lyrics as Map<*, *>))
                 put("youtubeLink", song.youtubeLink)
             }
             jsonArray.put(obj)
@@ -42,7 +42,12 @@ object BackupManager {
                 obj.optString("artist", "")
             }
             val deity = obj.optString("deity", null)
-            val lyrics = obj.getString("lyrics")
+            val lyricsValue = obj.get("lyrics")
+            val lyricsMap: Map<String, String> = if (lyricsValue is JSONObject) {
+                lyricsValue.keys().asSequence().associateWith { key -> lyricsValue.getString(key) }
+            } else {
+                mapOf("Default" to lyricsValue.toString())
+            }
             val youtubeLink = obj.optString("youtubeLink", null)
 
             val existingSong = dao.findSongByTitleAndComposer(title, composer)
@@ -52,7 +57,7 @@ object BackupManager {
                         title = title,
                         composer = composer,
                         deity = deity,
-                        lyrics = lyrics,
+                        lyrics = lyricsMap,
                         youtubeLink = youtubeLink
                     )
                 )

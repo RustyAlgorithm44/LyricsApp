@@ -32,14 +32,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <EditText
-        android:id="@+id/inputLyrics"
-        android:hint="Lyrics"
-        android:inputType="textMultiLine"
-        android:scrollbars="vertical"
-        android:gravity="top"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lyrics"
+        android:layout_marginTop="16dp"
+        android:textAppearance="?attr/textAppearanceLabelLarge"/>
+
+    <LinearLayout
+        android:id="@+id/lyricsContainer"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addLanguageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Language"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_gravity="end"/>
 
     <EditText
         android:id="@+id/inputYoutubeLink"

@@ -10,9 +10,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Song::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
+@androidx.room.TypeConverters(MapTypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun songDao(): SongDao
@@ -27,6 +28,26 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val cursor = database.query("SELECT id, lyrics FROM songs")
+                while (cursor.moveToNext()) {
+                    val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                    val lyrics = cursor.getString(cursor.getColumnIndexOrThrow("lyrics"))
+
+                    // Create a map and convert to JSON
+                    val lyricsMap = mapOf("Default" to lyrics)
+                    val jsonLyrics = com.google.gson.Gson().toJson(lyricsMap)
+
+                    // Update the row
+                    val contentValues = android.content.ContentValues().apply {
+                        put("lyrics", jsonLyrics)
+                    }
+                    database.update("songs", android.database.sqlite.SQLiteDatabase.CONFLICT_NONE, contentValues, "id = ?", arrayOf(id.toString()))
+                }
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
@@ -34,7 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "lyrics_db"
                 )
-                .addMigrations(MIGRATION_3_4)
+                .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
                 .build().also { INSTANCE = it }
             }
         }

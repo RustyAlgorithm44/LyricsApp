@@ -10,7 +10,7 @@ data class Song(
     val title: String,
     val composer: String,
     val deity: String? = null,
-    val lyrics: String,
+    val lyrics: Map<String, String>,
     val youtubeLink: String? = null,
     val isFavorite: Boolean = false
 )
