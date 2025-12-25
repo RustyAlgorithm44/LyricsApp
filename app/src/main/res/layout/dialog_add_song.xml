@@ -42,7 +42,7 @@
 
     <EditText
         android:id="@+id/inputRagam"
-        android:hint="Ragam (Optional)"
+        android:hint="Ragam"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -69,7 +69,7 @@
 
     <EditText
         android:id="@+id/inputYoutubeLink"
-        android:hint="YouTube Link (Optional)"
+        android:hint="Reference Link"
         android:inputType="textUri"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
