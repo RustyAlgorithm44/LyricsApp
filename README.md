@@ -15,7 +15,7 @@ This project is a continuously evolving Android application, demonstrating best 
 
 ###  Organization & Navigation
 *   **Home Page Filtering:** Organize and filter songs by "Deity" or "Composer" using `ChipGroup`.
-*   **Grouped Views:** Drill down from a list of all deities or composers to a filtered song list.
+*   **Expandable Tree View:** Instead of a simple list, groups are displayed in an interactive, collapsible tree structure, making it easier to navigate large collections.
 *   **Navigation Drawer:** Easy access to Home, Favorites, and Settings.
 *   **Favorites:** Mark songs as favorites and view them in a dedicated "Favorites" screen.
 

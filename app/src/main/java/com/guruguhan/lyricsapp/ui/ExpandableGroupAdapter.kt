@@ -28,6 +28,7 @@ class ExpandableGroupAdapter(
     }
 
     fun submitList(data: Map<String, List<Song>>) {
+        expandedGroups.clear()
         groupedData = data.entries.sortedBy { it.key }.map { it.key to it.value.sortedBy { s -> s.title } }
         rebuildDisplayList()
         notifyDataSetChanged()

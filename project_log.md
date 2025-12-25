@@ -108,6 +108,13 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Make song details scroll with lyrics:** The song title, deity, and composer now scroll along with the lyrics in the song detail page, providing a more integrated and user-friendly scrolling experience.
 *   **Improved YouTube Link Display:** Replaced the full YouTube link with a clickable YouTube icon button, which is now text-free, and positioned next to the song title, making the display cleaner and more intuitive.
 *   **Transform the Add/Edit song dialog into a full-screen** `AddEditSongActivity`, providing more space for input fields. This activity is launched from the FAB and the contextual edit action, and navigates back to the main page upon completion or cancellation.
+*   **Add/Edit Song Activity UI Refinements:** Moved the 'Save' button to the bottom of the screen for better ergonomics and restored the standard app-wide ActionBar for a consistent look and feel.
+*   **Fix Song Deselection:** Implemented `ActivityResultLauncher` to ensure that a song is correctly deselected in `MainActivity` after being saved in `AddEditSongActivity`.
+*   **Expandable Grouped View:** Replaced the drill-down list for "By Deity" and "By Composer" with an interactive, expandable "tree-like" view using a custom `RecyclerView.Adapter`.
+*   **UI Consistency:**
+    *   Ensured the toolbar title text color is theme-aware across all activities.
+    *   Removed the unused 3-dot overflow menu from the main page.
+*   **Incremented App Version:** Incremented the app version to 1.3.0.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
