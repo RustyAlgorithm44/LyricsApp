@@ -6,9 +6,12 @@ import com.guruguhan.lyricsapp.AddEditSongActivity
 import com.guruguhan.lyricsapp.FavoritesActivity
 import com.guruguhan.lyricsapp.SettingsActivity
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -164,25 +167,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val searchInput = findViewById<EditText>(R.id.searchInput)
-        searchInput.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {
-                if (!s.isNullOrBlank()) {
-                    recyclerView.adapter = adapter
-                    observeJob?.cancel()
-                    observeJob = lifecycleScope.launch {
-                        viewModel.search(s.toString()).collect { songs ->
-                            adapter.submitList(songs)
-                            updateEmptyState(songs.isEmpty(), isSearch = true)
-                        }
-                    }
-                } else {
-                    updateUI()
-                }
-            }
+        setupUI(drawerLayout, searchInput)
+    }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
+    private fun setupUI(view: android.view.View, searchInput: EditText) {
+        if (view !is EditText) {
+            view.setOnTouchListener { _, _ ->
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+                currentFocus?.clearFocus()
+                false
+            }
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val innerView = view.getChildAt(i)
+                setupUI(innerView, searchInput)
+            }
+        }
     }
 
     private fun updateUI() {

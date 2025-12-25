@@ -76,7 +76,7 @@ class SongDetailActivity : AppCompatActivity() {
 
         shareButton.setOnClickListener {
             song?.let {
-                val shareText = "${it.title}\n${it.deity ?: ""}\n${it.composer}\n\n${detailLyricsTextView.text}"
+                val shareText = "${it.title}\nComposer: ${it.composer}\nRagam: ${it.ragam ?: ""}\n\n${detailLyricsTextView.text}"
                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, shareText)
@@ -113,8 +113,8 @@ class SongDetailActivity : AppCompatActivity() {
             youtubeButton.visibility = View.GONE
         }
         
-        findViewById<TextView>(R.id.detailDeity).text = currentSong.deity ?: ""
-        findViewById<TextView>(R.id.detailComposer).text = currentSong.composer
+        findViewById<TextView>(R.id.detailDeity).text = currentSong.composer
+        findViewById<TextView>(R.id.detailComposer).text = currentSong.ragam ?: ""
         updateLyricsDisplay(currentSong) // Call to update lyrics based on currentLanguageIndex
 
         if (currentSong.isFavorite) {
