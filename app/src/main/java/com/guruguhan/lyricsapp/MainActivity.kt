@@ -1,5 +1,10 @@
 package com.guruguhan.lyricsapp
 
+import com.guruguhan.lyricsapp.R
+import com.guruguhan.lyricsapp.SongDetailActivity
+import com.guruguhan.lyricsapp.AddEditSongActivity
+import com.guruguhan.lyricsapp.FavoritesActivity
+import com.guruguhan.lyricsapp.SettingsActivity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -24,16 +29,11 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.guruguhan.lyricsapp.data.Song
-import com.guruguhan.lyricsapp.ui.GroupAdapter
+import com.guruguhan.lyricsapp.ui.ExpandableGroupAdapter
 import com.guruguhan.lyricsapp.ui.SongAdapter
 import android.view.MotionEvent
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import android.util.TypedValue
-import com.guruguhan.lyricsapp.R
-import com.guruguhan.lyricsapp.SongDetailActivity
-import com.guruguhan.lyricsapp.AddEditSongActivity
-import com.guruguhan.lyricsapp.FavoritesActivity
-import com.guruguhan.lyricsapp.SettingsActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var adapter: SongAdapter
-    private lateinit var groupAdapter: GroupAdapter
+    private lateinit var expandableAdapter: ExpandableGroupAdapter
     private lateinit var recyclerView: RecyclerView
     private val viewModel: SongViewModel by viewModels()
 
@@ -64,8 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private enum class ViewMode {
         ALL_SONGS,
         DEITY_LIST,
-        COMPOSER_LIST,
-        SONGS_FILTERED
+        COMPOSER_LIST
     }
 
     private var currentViewMode = ViewMode.ALL_SONGS
@@ -122,15 +121,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         )
 
-        groupAdapter = GroupAdapter { itemName ->
-            currentViewMode = ViewMode.SONGS_FILTERED
-            currentFilterType = when (findViewById<ChipGroup>(R.id.chipGroup).checkedChipId) {
-                R.id.chipDeity -> "DEITY"
-                R.id.chipComposer -> "COMPOSER"
-                else -> ""
+        expandableAdapter = ExpandableGroupAdapter { song ->
+            val intent = Intent(this, SongDetailActivity::class.java).apply {
+                putExtra("SONG_ID", song.id)
             }
-            currentFilterValue = itemName
-            updateUI()
+            startActivity(intent)
         }
 
         recyclerView = findViewById(R.id.songRecyclerView)
@@ -191,7 +186,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun updateUI() {
-        val recyclerView = findViewById<RecyclerView>(R.id.songRecyclerView)
         observeJob?.cancel()
 
         when (currentViewMode) {
@@ -205,34 +199,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
             ViewMode.DEITY_LIST -> {
-                recyclerView.adapter = groupAdapter
+                recyclerView.adapter = expandableAdapter
                 observeJob = lifecycleScope.launch {
-                    viewModel.uniqueDeities.collect { deities ->
-                        groupAdapter.submitList(deities)
-                        updateEmptyState(deities.isEmpty())
+                    viewModel.songsByDeity.collect { songMap ->
+                        val nonNullKeyMap = songMap.filterKeys { it != null }.mapKeys { it.key!! }
+                        expandableAdapter.submitList(nonNullKeyMap)
+                        updateEmptyState(nonNullKeyMap.isEmpty())
                     }
                 }
             }
             ViewMode.COMPOSER_LIST -> {
-                recyclerView.adapter = groupAdapter
+                recyclerView.adapter = expandableAdapter
                 observeJob = lifecycleScope.launch {
-                    viewModel.uniqueComposers.collect { composers ->
-                        groupAdapter.submitList(composers)
-                        updateEmptyState(composers.isEmpty())
-                    }
-                }
-            }
-            ViewMode.SONGS_FILTERED -> {
-                recyclerView.adapter = adapter
-                observeJob = lifecycleScope.launch {
-                    val flow = if (currentFilterType == "DEITY") {
-                        viewModel.getSongsByDeity(currentFilterValue ?: "")
-                    } else {
-                        viewModel.getSongsByComposer(currentFilterValue ?: "")
-                    }
-                    flow.collect { songs ->
-                        adapter.submitList(songs)
-                        updateEmptyState(songs.isEmpty())
+                    viewModel.songsByComposer.collect { songMap ->
+                        val nonNullKeyMap = songMap.filterKeys { it != null }.mapKeys { it.key!! }
+                        expandableAdapter.submitList(nonNullKeyMap)
+                        updateEmptyState(nonNullKeyMap.isEmpty())
                     }
                 }
             }
@@ -308,13 +290,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             drawerLayout.closeDrawer(GravityCompat.START)
         } else if (adapter.isInActionMode) {
             endManualActionMode()
-        } else if (currentViewMode == ViewMode.SONGS_FILTERED) {
-            if (currentFilterType == "DEITY") {
-                currentViewMode = ViewMode.DEITY_LIST
-            } else {
-                currentViewMode = ViewMode.COMPOSER_LIST
-            }
-            updateUI()
         } else if (currentViewMode != ViewMode.ALL_SONGS) {
             findViewById<Chip>(R.id.chipAll).isChecked = true
         } else {

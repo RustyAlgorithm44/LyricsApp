@@ -15,18 +15,20 @@ import kotlinx.coroutines.flow.map
 
 class SongViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: SongRepository
+    private val repository: SongRepository = SongRepository(AppDatabase.getDatabase(application).songDao())
 
     val allSongs get() = repository.allSongs
     val favoriteSongs get() = repository.favoriteSongs
 
+    val songsByDeity = allSongs.map { songs ->
+        songs.groupBy { it.deity }
+    }
+    val songsByComposer = allSongs.map { songs ->
+        songs.filter { !it.composer.isNullOrBlank() }.groupBy { it.composer!! }
+    }
+
     private val _errorEvents = MutableSharedFlow<String>()
     val errorEvents = _errorEvents.asSharedFlow()
-
-    init {
-        val songDao = AppDatabase.getDatabase(application).songDao()
-        repository = SongRepository(songDao)
-    }
 
     fun insert(song: Song) = viewModelScope.launch {
         try {

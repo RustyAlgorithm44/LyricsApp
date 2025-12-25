@@ -64,6 +64,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "lyrics_db"
                 )
                 .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .fallbackToDestructiveMigration()
                 .build().also { INSTANCE = it }
             }
         }
