@@ -22,6 +22,11 @@
             android:name=".SongDetailActivity"
             android:exported="false" />
         <activity
+            android:name=".AddEditSongActivity"
+            android:exported="false"
+            android:theme="@style/Theme.LyricsApp.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.LyricsApp">

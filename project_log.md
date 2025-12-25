@@ -107,9 +107,9 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Added Ragam Field & Backup Support:** Implemented a new "Ragam" field for songs, added database migration for it, integrated it into the Add/Edit song dialogs, and ensured it is included in the backup and restore functionality.
 *   **Make song details scroll with lyrics:** The song title, deity, and composer now scroll along with the lyrics in the song detail page, providing a more integrated and user-friendly scrolling experience.
 *   **Improved YouTube Link Display:** Replaced the full YouTube link with a clickable YouTube icon button, which is now text-free, and positioned next to the song title, making the display cleaner and more intuitive.
+*   **Transform the Add/Edit song dialog into a full-screen** `AddEditSongActivity`, providing more space for input fields. This activity is launched from the FAB and the contextual edit action, and navigates back to the main page upon completion or cancellation.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
-3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-5. Can the whole add song menu be a page instead of a dialog box? That way there will be enough space for everything. (This pagen needn't be shown anywhere like in the side panel). This page can be gone to, only from the + button. and after adding the song, it goes back to the main page.
+3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)** 

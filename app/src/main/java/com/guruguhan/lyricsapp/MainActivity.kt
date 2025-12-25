@@ -1,11 +1,14 @@
 package com.guruguhan.lyricsapp
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -26,6 +29,11 @@ import com.guruguhan.lyricsapp.ui.SongAdapter
 import android.view.MotionEvent
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import android.util.TypedValue
+import com.guruguhan.lyricsapp.R
+import com.guruguhan.lyricsapp.SongDetailActivity
+import com.guruguhan.lyricsapp.AddEditSongActivity
+import com.guruguhan.lyricsapp.FavoritesActivity
+import com.guruguhan.lyricsapp.SettingsActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -37,6 +45,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var groupAdapter: GroupAdapter
     private lateinit var recyclerView: RecyclerView
     private val viewModel: SongViewModel by viewModels()
+
+    private lateinit var editSongLauncher: ActivityResultLauncher<Intent>
 
     private val actionModeTouchListener = object : RecyclerView.OnItemTouchListener {
         override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
@@ -66,6 +76,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        editSongLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                endManualActionMode()
+            }
+        }
 
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -148,7 +164,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val fab = findViewById<FloatingActionButton>(R.id.addSongFab)
         fab.setOnClickListener {
-            showAddSongDialog()
+            val intent = Intent(this, AddEditSongActivity::class.java)
+            startActivity(intent)
         }
 
         val searchInput = findViewById<EditText>(R.id.searchInput)
@@ -321,7 +338,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             when (it.itemId) {
                 R.id.action_edit_song -> {
                     if (adapter.selectedSongs.size == 1) {
-                        showEditSongDialog(adapter.selectedSongs.first())
+                        val intent = Intent(this, AddEditSongActivity::class.java).apply {
+                            putExtra("SONG_ID", adapter.selectedSongs.first().id)
+                        }
+                        editSongLauncher.launch(intent)
                     }
                     true
                 }
@@ -344,382 +364,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         toolbar.title = getString(R.string.app_name)
         toolbar.menu.clear()
-        toolbar.inflateMenu(R.menu.menu_main)
+        // Removed toolbar.inflateMenu(R.menu.menu_main) to remove the 3-dot menu
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         toggle.isDrawerIndicatorEnabled = true
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         toggle.syncState()
         toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
-    }
-
-    private fun addLanguageInputRow(
-        container: android.widget.LinearLayout,
-        availableLanguages: List<String>,
-        language: String = "",
-        lyrics: String = ""
-    ) {
-        val inflater = layoutInflater
-        val rowView = inflater.inflate(R.layout.item_language_input, container, false)
-
-        val languageSpinner = rowView.findViewById<android.widget.Spinner>(R.id.languageSpinner)
-        val otherLanguageLayout = rowView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.otherLanguageLayout)
-        val otherLanguageInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.otherLanguageInput)
-        val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
-        val removeButton = rowView.findViewById<android.widget.ImageButton>(R.id.removeLanguageButton)
-
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, availableLanguages)
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        languageSpinner.adapter = spinnerAdapter
-
-        lyricsInput.setText(lyrics)
-
-        // Set spinner selection based on existing language
-        val languagePosition = availableLanguages.indexOf(language)
-        if (language.isNotBlank() && languagePosition != -1) {
-            languageSpinner.setSelection(languagePosition)
-        } else if (language.isNotBlank()) {
-            // If the language is custom, select "Other" and fill the field
-            languageSpinner.setSelection(availableLanguages.indexOf("Other"))
-            otherLanguageLayout.visibility = android.view.View.VISIBLE
-            otherLanguageInput.setText(language)
-        }
-
-
-        languageSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                if (availableLanguages[position] == "Other") {
-                    otherLanguageLayout.visibility = android.view.View.VISIBLE
-                } else {
-                    otherLanguageLayout.visibility = android.view.View.GONE
-                }
-            }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {
-                otherLanguageLayout.visibility = android.view.View.GONE
-            }
-        }
-
-        removeButton.setOnClickListener {
-            container.removeView(rowView)
-        }
-
-        container.addView(rowView)
-    }
-
-    private fun showAddSongDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
-
-        val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
-        val inputDeityPlain = dialogView.findViewById<android.widget.EditText>(R.id.inputDeityPlain)
-        val inputDeityDropdownLayout = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.inputDeityDropdownLayout)
-        val autoCompleteDeityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.autoCompleteDeityInput)
-        val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
-        val youtubeLinkInput =
-            dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
-        val lyricsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.lyricsContainer)
-        val addLanguageButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.addLanguageButton)
-        val allLanguages = listOf("English", "தமிழ்", "संस्कृतम्", "ಕನ್ನಡ", "Other")
-
-        // Add one empty row to start
-        addLanguageInputRow(lyricsContainer, allLanguages)
-
-        addLanguageButton.setOnClickListener {
-            val usedLanguages = mutableSetOf<String>()
-            for (i in 0 until lyricsContainer.childCount) {
-                val rowView = lyricsContainer.getChildAt(i)
-                val spinner = rowView.findViewById<android.widget.Spinner>(R.id.languageSpinner)
-                if (spinner.selectedItem != null) {
-                    usedLanguages.add(spinner.selectedItem.toString())
-                }
-            }
-            val availableLanguages = allLanguages.filter { it !in usedLanguages || it == "Other" }
-            if (availableLanguages.size == 1 && availableLanguages.contains("Other")) {
-                Toast.makeText(this, "All languages have been added", Toast.LENGTH_SHORT).show()
-            } else {
-                addLanguageInputRow(lyricsContainer, availableLanguages)
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.uniqueDeities.collect { deities ->
-                if (deities.isEmpty()) {
-                    inputDeityPlain.visibility = android.view.View.VISIBLE
-                    inputDeityDropdownLayout.visibility = android.view.View.GONE
-                } else {
-                    inputDeityPlain.visibility = android.view.View.GONE
-                    inputDeityDropdownLayout.visibility = android.view.View.VISIBLE
-                    val adapter = ArrayAdapter(
-                        this@MainActivity,
-                        android.R.layout.simple_dropdown_item_1line,
-                        deities
-                    )
-                    autoCompleteDeityInput.setAdapter(adapter)
-                }
-            }
-        }
-
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Add Song")
-            .setView(dialogView)
-            .setPositiveButton("Save", null) // Set null listener initially
-            .setNegativeButton("Cancel", null)
-            .show()
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val title = titleInput.text.toString().trim()
-            val composer = composerInput.text.toString().trim()
-            val deity = if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
-                inputDeityPlain.text.toString().trim().nullIfBlank()
-            } else {
-                autoCompleteDeityInput.text.toString().trim().nullIfBlank()
-            }
-            val youtubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
-
-            titleInput.error = null // Clear previous errors
-
-            val lyricsMap = mutableMapOf<String, String>()
-            var isValidLyrics = true
-            for (i in 0 until lyricsContainer.childCount) {
-                val rowView = lyricsContainer.getChildAt(i)
-                val languageSpinner = rowView.findViewById<android.widget.Spinner>(R.id.languageSpinner)
-                val otherLanguageLayout = rowView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.otherLanguageLayout)
-                val otherLanguageInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.otherLanguageInput)
-                val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
-
-                val selectedLanguage = languageSpinner.selectedItem.toString()
-                val lang = if (selectedLanguage == "Other") {
-                    otherLanguageInput.text?.toString()?.trim() ?: ""
-                } else {
-                    selectedLanguage
-                }
-                val lyr = lyricsInput.text?.toString()?.trim() ?: ""
-
-                // Clear previous errors for this row
-                if (selectedLanguage == "Other") {
-                    otherLanguageLayout.error = null
-                }
-                // Assuming lyricsInput is inside a TextInputLayout, if not, adjust
-                (lyricsInput.parent.parent as? TextInputLayout)?.error = null
-
-
-                if (lang.isNotBlank() && lyr.isNotBlank()) {
-                    lyricsMap[lang] = lyr
-                } else if (lang.isNotBlank() || lyr.isNotBlank()) {
-                    // Only one field is filled, mark as invalid
-                    isValidLyrics = false
-                    if (selectedLanguage == "Other" && otherLanguageInput.text.isNullOrBlank()) {
-                        otherLanguageLayout.error = "Language required"
-                    }
-                    if (lyricsInput.text.isNullOrBlank()) {
-                        (lyricsInput.parent.parent as? TextInputLayout)?.error = "Lyrics required"
-                    }
-                }
-            }
-
-            if (title.isBlank()) {
-                titleInput.error = "Song title is required!"
-                return@setOnClickListener
-            }
-
-            if (deity.isNullOrBlank()) {
-                if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
-                    inputDeityPlain.error = "Deity is required!"
-                } else {
-                    inputDeityDropdownLayout.error = "Deity is required!"
-                }
-                return@setOnClickListener
-            }
-
-            if (lyricsMap.isEmpty() && lyricsContainer.childCount == 0) { // No lyrics rows at all
-                android.widget.Toast.makeText(
-                    this,
-                    "At least one complete language/lyrics pair is required!",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            } else if (!isValidLyrics) {
-                android.widget.Toast.makeText(
-                    this,
-                    "Incomplete lyrics entry found. Please complete or clear the row.",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
-
-
-            val song = com.guruguhan.lyricsapp.data.Song(
-                title = title,
-                composer = composer,
-                deity = deity,
-                lyrics = lyricsMap,
-                youtubeLink = youtubeLink
-            )
-            viewModel.insert(song)
-            dialog.dismiss()
-        }
-    }
-
-    private fun showEditSongDialog(song: com.guruguhan.lyricsapp.data.Song) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_song, null)
-
-        val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.inputTitle)
-        val inputDeityPlain = dialogView.findViewById<android.widget.EditText>(R.id.inputDeityPlain)
-        val inputDeityDropdownLayout = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.inputDeityDropdownLayout)
-        val autoCompleteDeityInput = dialogView.findViewById<android.widget.AutoCompleteTextView>(R.id.autoCompleteDeityInput)
-        val composerInput = dialogView.findViewById<android.widget.EditText>(R.id.inputComposer)
-        val youtubeLinkInput =
-            dialogView.findViewById<android.widget.EditText>(R.id.inputYoutubeLink)
-        val lyricsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.lyricsContainer)
-        val addLanguageButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.addLanguageButton)
-        val allLanguages = listOf("English", "தமிழ்", "संस्कृतम्", "ಕನ್ನಡ", "Other")
-
-        titleInput.setText(song.title)
-        composerInput.setText(song.composer)
-        youtubeLinkInput.setText(song.youtubeLink)
-
-        // Populate existing lyrics - for simplicity in edit mode, we provide all languages to each spinner.
-        if (song.lyrics.isNotEmpty()) {
-            song.lyrics.forEach { (lang, lyr) ->
-                // Pass the full list, but also the specific language to be selected
-                addLanguageInputRow(lyricsContainer, allLanguages, lang, lyr)
-            }
-        } else {
-            addLanguageInputRow(lyricsContainer, allLanguages) // Add an empty row if no lyrics exist
-        }
-
-        addLanguageButton.setOnClickListener {
-            val usedLanguages = mutableSetOf<String>()
-            for (i in 0 until lyricsContainer.childCount) {
-                val rowView = lyricsContainer.getChildAt(i)
-                val spinner = rowView.findViewById<android.widget.Spinner>(R.id.languageSpinner)
-                 if (spinner.selectedItem != null) {
-                    usedLanguages.add(spinner.selectedItem.toString())
-                }
-            }
-            val availableLanguages = allLanguages.filter { it !in usedLanguages || it == "Other" }
-            if (availableLanguages.size == 1 && availableLanguages.contains("Other")) {
-                Toast.makeText(this, "All languages have been added", Toast.LENGTH_SHORT).show()
-            } else {
-                addLanguageInputRow(lyricsContainer, availableLanguages)
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.uniqueDeities.collect { deities ->
-                if (deities.isEmpty()) {
-                    inputDeityPlain.visibility = android.view.View.VISIBLE
-                    inputDeityDropdownLayout.visibility = android.view.View.GONE
-                    inputDeityPlain.setText(song.deity) // Set existing deity to plain EditText
-                } else {
-                    inputDeityPlain.visibility = android.view.View.GONE
-                    inputDeityDropdownLayout.visibility = android.view.View.VISIBLE
-                    val adapter = ArrayAdapter(
-                        this@MainActivity,
-                        android.R.layout.simple_dropdown_item_1line,
-                        deities
-                    )
-                    autoCompleteDeityInput.setAdapter(adapter)
-                    autoCompleteDeityInput.setText(song.deity) // Set existing deity to AutoCompleteTextView
-                }
-            }
-        }
-
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Edit Song")
-            .setView(dialogView)
-            .setPositiveButton("Save", null) // Set null listener initially
-            .setNegativeButton("Cancel", null)
-            .show()
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val updatedTitle = titleInput.text.toString().trim()
-            val updatedComposer = composerInput.text.toString().trim()
-            val updatedDeity = if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
-                inputDeityPlain.text.toString().trim().nullIfBlank()
-            } else {
-                autoCompleteDeityInput.text.toString().trim().nullIfBlank()
-            }
-            val updatedYoutubeLink = youtubeLinkInput.text.toString().trim().nullIfBlank()
-
-            titleInput.error = null // Clear previous errors
-
-            val lyricsMap = mutableMapOf<String, String>()
-            var isValidLyrics = true
-            for (i in 0 until lyricsContainer.childCount) {
-                val rowView = lyricsContainer.getChildAt(i)
-                val languageSpinner = rowView.findViewById<android.widget.Spinner>(R.id.languageSpinner)
-                val otherLanguageLayout = rowView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.otherLanguageLayout)
-                val otherLanguageInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.otherLanguageInput)
-                val lyricsInput = rowView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.inputLyrics)
-
-                val selectedLanguage = languageSpinner.selectedItem.toString()
-                val lang = if (selectedLanguage == "Other") {
-                    otherLanguageInput.text?.toString()?.trim() ?: ""
-                } else {
-                    selectedLanguage
-                }
-                val lyr = lyricsInput.text?.toString()?.trim() ?: ""
-
-                // Clear previous errors for this row
-                if (selectedLanguage == "Other") {
-                    otherLanguageLayout.error = null
-                }
-                (lyricsInput.parent.parent as? TextInputLayout)?.error = null
-
-                if (lang.isNotBlank() && lyr.isNotBlank()) {
-                    lyricsMap[lang] = lyr
-                } else if (lang.isNotBlank() || lyr.isNotBlank()) {
-                    // Only one field is filled, mark as invalid
-                    isValidLyrics = false
-                    if (selectedLanguage == "Other" && otherLanguageInput.text.isNullOrBlank()) {
-                        otherLanguageLayout.error = "Language required"
-                    }
-                    if (lyricsInput.text.isNullOrBlank()) {
-                        (lyricsInput.parent.parent as? TextInputLayout)?.error = "Lyrics required"
-                    }
-                }
-            }
-
-            if (updatedTitle.isBlank()) {
-                titleInput.error = "Song title is required!"
-                return@setOnClickListener
-            }
-
-            if (updatedDeity.isNullOrBlank()) {
-                if (inputDeityPlain.visibility == android.view.View.VISIBLE) {
-                    inputDeityPlain.error = "Deity is required!"
-                } else {
-                    inputDeityDropdownLayout.error = "Deity is required!"
-                }
-                return@setOnClickListener
-            }
-
-            if (lyricsMap.isEmpty() && lyricsContainer.childCount == 0) { // No lyrics rows at all
-                android.widget.Toast.makeText(
-                    this,
-                    "At least one complete language/lyrics pair are required!",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            } else if (!isValidLyrics) {
-                android.widget.Toast.makeText(
-                    this,
-                    "Incomplete lyrics entry found. Please complete or clear the row.",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
-
-            val updatedSong = song.copy(
-                title = updatedTitle,
-                composer = updatedComposer,
-                deity = updatedDeity,
-                lyrics = lyricsMap,
-                youtubeLink = updatedYoutubeLink
-            )
-            viewModel.update(updatedSong)
-            dialog.dismiss()
-            endManualActionMode()
-        }
     }
 
     override fun onResume() {
@@ -755,7 +405,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .show()
     }
 
-    fun String.nullIfBlank(): String? {
-        return if (this.isBlank()) null else this
-    }
+
 }
