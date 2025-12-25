@@ -9,8 +9,8 @@ This project is a continuously evolving Android application, demonstrating best 
 ## ✨ Features
 
 ### 🎶 Carnatic Music Library
-*   **Add & Edit Songs:** Store songs with Title, Composer, Deity, Lyrics, and an optional YouTube link.
-*   **Input Validation:** Prevents adding songs with blank titles or lyrics.
+*   **Full-Screen Add & Edit:** A dedicated, full-screen activity provides a more focused and spacious interface for adding and editing songs with Title, Composer, Deity, Ragam, Lyrics, and an optional YouTube link.
+*   **Input Validation:** Prevents adding songs with blank titles, lyrics, or other required fields.
 *   **Rich Song Display:** View songs in a clean, filterable list using `MaterialCardView` for a modern look.
 
 ###  Organization & Navigation
@@ -21,11 +21,13 @@ This project is a continuously evolving Android application, demonstrating best 
 
 ### 🔍 Smart Search & Actions
 *   **Robust Search:** Instantly search across song titles, composers, deities, and lyrics.
+*   **Focus Handling:** Tapping outside the search bar automatically dismisses the keyboard and clears focus.
 *   **Contextual Actions:** Long-press on any song to enter a contextual action mode to edit or delete.
 *   **Visual Selection Feedback:** Selected items are highlighted, and a second tap deselects.
 
 ### 📖 Reading & Sharing
 *   **Pinch-to-Zoom:** Zoom and pan lyrics in the detail view for better readability.
+*   **Refined Detail View:** The song detail page now prominently displays the Composer and Ragam for quick reference.
 *   **Share Functionality:** Share song details with others.
 *   **Multi-Language Support:** Store lyrics for a single song in multiple languages (e.g., English, Tamil, Sanskrit) and easily switch between them in the detail view.
 
@@ -33,6 +35,7 @@ This project is a continuously evolving Android application, demonstrating best 
 *   **Material 3 Design:** Incorporates modern Material Design components.
 *   **Dynamic Color:** Supports Material You dynamic theming on Android 12+.
 *   **Theme Switcher:** Manually switch between Light, Dark, and System default themes in Settings.
+*   **Fading Scrollbar:** The scrollbar in the song detail view now automatically fades out after a short delay for a cleaner look.
 *   **Modernized Dialogs:** Clean, scrollable dialogs for adding and editing songs.
 
 ### 💾 Offline Backup & Restore
