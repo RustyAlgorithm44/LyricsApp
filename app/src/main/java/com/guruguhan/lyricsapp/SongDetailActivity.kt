@@ -3,6 +3,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ScaleGestureDetector
 import android.view.MotionEvent
+import android.os.Handler
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +27,7 @@ class SongDetailActivity : AppCompatActivity() {
     private var originalTextSize: Float = 0f
     private lateinit var detailLyricsTextView: TextView
     private lateinit var youtubeButton: MaterialButton // New declaration for the YouTube button
+    private lateinit var detailScrollView: ScrollView // Declare ScrollView
 
     private val viewModel: SongViewModel by viewModels()
     private var song: Song? = null
@@ -50,6 +53,7 @@ class SongDetailActivity : AppCompatActivity() {
 
         detailLyricsTextView = findViewById(R.id.detailLyrics)
         youtubeButton = findViewById(R.id.youtubeButton) // Initialize the new YouTube button
+        detailScrollView = findViewById(R.id.detailScrollView) // Initialize ScrollView
         originalTextSize = detailLyricsTextView.textSize / resources.displayMetrics.scaledDensity
         scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
 
@@ -127,6 +131,12 @@ class SongDetailActivity : AppCompatActivity() {
 
         // Hide/Show language button based on available languages
         switchLanguageButton.visibility = if (languages.size > 1) android.view.View.VISIBLE else android.view.View.GONE
+
+        // Automatically hide scroll indicators after a delay
+        detailScrollView.scrollIndicators = View.SCROLL_INDICATOR_TOP or View.SCROLL_INDICATOR_BOTTOM
+        Handler().postDelayed({
+            detailScrollView.scrollIndicators = 0
+        }, 1000) // 1 second delay
     }
 
     private fun updateLyricsDisplay(currentSong: Song) {

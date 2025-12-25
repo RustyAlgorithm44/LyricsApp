@@ -119,4 +119,5 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
-3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)** 
+3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+4. The "scroll-bar" is seen right after opening a detail lyrics page, and it stays seen until I scroll. Then it fades away. I want it to fade away before I touch the screen also.
