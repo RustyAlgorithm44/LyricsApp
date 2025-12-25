@@ -1,5 +1,4 @@
 package com.guruguhan.lyricsapp
-
 import android.content.Intent
 import android.os.Bundle
 import android.view.ScaleGestureDetector
@@ -13,6 +12,8 @@ import com.google.android.material.button.MaterialButton
 import com.guruguhan.lyricsapp.data.Song
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import android.util.TypedValue
+import android.net.Uri // Keep Uri import for opening the link
+import android.view.View
 import android.graphics.Color
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -23,6 +24,7 @@ class SongDetailActivity : AppCompatActivity() {
     private var currentScaleFactor = 1.0f
     private var originalTextSize: Float = 0f
     private lateinit var detailLyricsTextView: TextView
+    private lateinit var youtubeButton: MaterialButton // New declaration for the YouTube button
 
     private val viewModel: SongViewModel by viewModels()
     private var song: Song? = null
@@ -47,6 +49,7 @@ class SongDetailActivity : AppCompatActivity() {
         toolbar.navigationIcon?.setTint(typedValue.data)
 
         detailLyricsTextView = findViewById(R.id.detailLyrics)
+        youtubeButton = findViewById(R.id.youtubeButton) // Initialize the new YouTube button
         originalTextSize = detailLyricsTextView.textSize / resources.displayMetrics.scaledDensity
         scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
 
@@ -98,8 +101,20 @@ class SongDetailActivity : AppCompatActivity() {
 
     private fun updateUi(currentSong: Song) {
         findViewById<TextView>(R.id.detailTitle).text = currentSong.title
-        findViewById<TextView>(R.id.detailComposer).text = currentSong.composer
+
+        // Display YouTube link button if available
+        currentSong.youtubeLink?.let { link ->
+            youtubeButton.visibility = View.VISIBLE
+            youtubeButton.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                startActivity(intent)
+            }
+        } ?: run {
+            youtubeButton.visibility = View.GONE
+        }
+        
         findViewById<TextView>(R.id.detailDeity).text = currentSong.deity ?: ""
+        findViewById<TextView>(R.id.detailComposer).text = currentSong.composer
         updateLyricsDisplay(currentSong) // Call to update lyrics based on currentLanguageIndex
 
         if (currentSong.isFavorite) {
