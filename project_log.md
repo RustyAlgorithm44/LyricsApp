@@ -122,7 +122,12 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Edit from Detail Page:** Added an "Edit" button to the toolbar on the `SongDetailActivity` screen, allowing users to quickly open the edit page for the currently viewed song.
 *   **Remove Side Panel from Add/Edit:** Removed the navigation drawer (side panel) from `AddEditSongActivity`, replacing it with a standard, theme-aware back button in the toolbar for a more streamlined editing experience.
 *   **Theme-aware contextual action mode close button:** Ensured the "x" (close/deselect) button in `MainActivity`'s contextual action mode toolbar is theme-aware, matching the current theme's `colorOnPrimary`.
-*   **Format Lyrics Headings:** Implemented automatic bold formatting for headings like "Pallavi:", "Anupallavi:", and "Charanam:" in the `SongDetailActivity` lyrics display.
+*   **Auto-format Lyrics Headings:** Implemented auto-correction and rich text formatting for lyrics headings.
+    *   On save, variations of "Pallavi", "Anupallavi", and "Charanam" are automatically corrected to sentence case and wrapped in bold and underline HTML tags, with a line break (`<br>`) added before them for spacing.
+    *   The lyrics are now stored as HTML in the database.
+    *   The song detail page now renders this HTML to display the formatted text.
+    *   The edit page decodes the HTML to show plain text for a better editing experience.
+*   **Incremented App Version:** Incremented the app version to 1.3.2.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?

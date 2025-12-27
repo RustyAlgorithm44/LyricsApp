@@ -19,9 +19,7 @@ import android.view.View
 import android.graphics.Color
 import android.view.Menu
 import android.view.MenuItem
-import android.text.SpannableString
-import android.text.style.StyleSpan
-import android.graphics.Typeface
+import android.text.Html
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -92,7 +90,7 @@ class SongDetailActivity : AppCompatActivity() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, shareText)
                 }
-                startActivity(Intent.createChooser(shareIntent, "Share lyrics via"))
+                startActivity(Intent.createChooser(shareIntent, "Share App via"))
             }
         }
 
@@ -149,17 +147,7 @@ class SongDetailActivity : AppCompatActivity() {
     private fun updateLyricsDisplay(currentSong: Song) {
         val currentLanguage = languages.getOrNull(currentLanguageIndex)
         val lyricsText = currentSong.lyrics[currentLanguage] ?: ""
-
-        val spannableString = SpannableString(lyricsText)
-        val lines = lyricsText.split("\n")
-        var currentOffset = 0
-        for (line in lines) {
-            if (line.startsWith("Pallavi:") || line.startsWith("Anupallavi:") || line.startsWith("Charanam:")) {
-                spannableString.setSpan(StyleSpan(Typeface.BOLD), currentOffset, currentOffset + line.length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            currentOffset += line.length + 1 // +1 for the newline character
-        }
-        detailLyricsTextView.text = spannableString
+        detailLyricsTextView.text = Html.fromHtml(lyricsText, Html.FROM_HTML_MODE_LEGACY)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

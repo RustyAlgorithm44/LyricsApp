@@ -19,6 +19,7 @@ import com.guruguhan.lyricsapp.data.Song
 import com.guruguhan.lyricsapp.databinding.ActivityAddEditSongBinding
 import com.guruguhan.lyricsapp.databinding.ItemLanguageInputBinding
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
+import android.text.Html
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -133,7 +134,14 @@ class AddEditSongActivity : AppCompatActivity() {
 
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, availableLanguages)
         rowBinding.languageSpinner.adapter = spinnerAdapter
-        rowBinding.inputLyrics.setText(lyrics)
+
+        // Convert HTML to plain text for editing
+        val plainTextLyrics = if (lyrics.isNotEmpty()) {
+            Html.fromHtml(lyrics, Html.FROM_HTML_MODE_LEGACY).toString()
+        } else {
+            ""
+        }
+        rowBinding.inputLyrics.setText(plainTextLyrics)
 
         val languagePosition = availableLanguages.indexOf(language)
         if (language.isNotBlank() && languagePosition != -1) {
@@ -240,20 +248,28 @@ class AddEditSongActivity : AppCompatActivity() {
             return
         }
 
+        val formattedLyricsMap = mutableMapOf<String, String>()
+        lyricsMap.forEach { (lang, lyr) ->
+            var formattedLyr = lyr.replace("\n", "<br>")
+            formattedLyr = formattedLyr.replace(Regex("pallavi\\s*:?", RegexOption.IGNORE_CASE), "<b><u>Pallavi:</u></b>")
+            formattedLyr = formattedLyr.replace(Regex("anupallavi\\s*:?", RegexOption.IGNORE_CASE), "<b><u>Anupallavi:</u></b>")
+            formattedLyr = formattedLyr.replace(Regex("ch?ara(n|N)am\\s*:?", RegexOption.IGNORE_CASE), "<b><u>Charanam:</u></b>")
+            formattedLyricsMap[lang] = formattedLyr
+        }
 
         val songToSave = currentSong?.copy(
             title = title,
             composer = composer,
             ragam = ragam,
             deity = deity,
-            lyrics = lyricsMap,
+            lyrics = formattedLyricsMap,
             youtubeLink = youtubeLink
         ) ?: Song(
             title = title,
             composer = composer,
             ragam = ragam,
             deity = deity,
-            lyrics = lyricsMap,
+            lyrics = formattedLyricsMap,
             youtubeLink = youtubeLink
         )
 
