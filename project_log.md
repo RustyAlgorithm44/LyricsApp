@@ -120,10 +120,10 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Made the Composer field optional (not mandatory).
     *   Both Deity and Composer inputs now conditionally appear as dropdowns only if there is existing data to show; otherwise, they function as standard text fields.
 *   **Edit from Detail Page:** Added an "Edit" button to the toolbar on the `SongDetailActivity` screen, allowing users to quickly open the edit page for the currently viewed song.
+*   **Remove Side Panel from Add/Edit:** Removed the navigation drawer (side panel) from `AddEditSongActivity`, replacing it with a standard, theme-aware back button in the toolbar for a more streamlined editing experience.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
 6. Can there be text formatting like Bold or underline for headings like pallavi, charanam etc
-7. Side panel shouldn't be there in add song and edit song page. It should just have a back button in that place like in detail lyrics view.

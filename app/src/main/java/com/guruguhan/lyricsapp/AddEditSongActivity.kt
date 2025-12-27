@@ -8,12 +8,9 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.navigation.NavigationView
+import com.google.android.material.textfield.TextInputLayout
 import com.guruguhan.lyricsapp.R
 import com.guruguhan.lyricsapp.MainActivity
 import com.guruguhan.lyricsapp.FavoritesActivity
@@ -22,11 +19,10 @@ import com.guruguhan.lyricsapp.data.Song
 import com.guruguhan.lyricsapp.databinding.ActivityAddEditSongBinding
 import com.guruguhan.lyricsapp.databinding.ItemLanguageInputBinding
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class AddEditSongActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddEditSongBinding
     private val songViewModel: SongViewModel by viewModels()
@@ -34,32 +30,17 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     private var currentSong: Song? = null
     private val allLanguages = listOf("English", "தமிழ்", "संस्कृतम्", "ಕನ್ನಡ", "Other")
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var toggle: ActionBarDrawerToggle
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddEditSongBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-        drawerLayout = binding.drawerLayout
-        val navigationView = binding.navView
-        navigationView.setNavigationItemSelectedListener(this)
-
-        toggle = ActionBarDrawerToggle(
-            this, drawerLayout, binding.toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val typedValue = TypedValue()
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
-        toggle.drawerArrowDrawable.color = typedValue.data
-
+        binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
         songId = intent.getIntExtra("SONG_ID", -1)
 
@@ -96,7 +77,8 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
             val availableLanguages = allLanguages.filter { it !in usedLanguages || it == "Other" }
             if (availableLanguages.size == 1 && availableLanguages.contains("Other") && usedLanguages.contains("Other")) {
                 Toast.makeText(this, "All languages have been added", Toast.LENGTH_SHORT).show()
-            } else {
+            }
+            else {
                 addLanguageInputRow(availableLanguages = availableLanguages)
             }
         }
@@ -167,7 +149,8 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 if (availableLanguages[position] == "Other") {
                     rowBinding.otherLanguageLayout.visibility = android.view.View.VISIBLE
-                } else {
+                }
+                else {
                     rowBinding.otherLanguageLayout.visibility = android.view.View.GONE
                 }
             }
@@ -183,53 +166,9 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         binding.lyricsContainer.addView(rowBinding.root)
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_home -> {
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(intent)
-                finish()
-            }
-            R.id.nav_favorites -> {
-                val intent = Intent(this, FavoritesActivity::class.java)
-                startActivity(intent)
-            }
-            R.id.nav_settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-            }
-            R.id.nav_share -> {
-                shareApk()
-            }
-        }
-        drawerLayout.closeDrawer(GravityCompat.START)
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
         return true
-    }
-
-    private fun shareApk() {
-        val shareText = "Check out the LyricsApp! Download it from: [Google Play Store link placeholder]"
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, shareText)
-        }
-        startActivity(Intent.createChooser(shareIntent, "Share App via"))
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)) {
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun saveSong() {
