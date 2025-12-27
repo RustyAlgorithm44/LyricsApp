@@ -310,6 +310,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.isDrawerIndicatorEnabled = false
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationIcon(R.drawable.ic_close)
+        val typedValue = TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
+        toolbar.navigationIcon?.setTint(typedValue.data)
         toolbar.setNavigationOnClickListener { endManualActionMode() }
 
         toolbar.setOnMenuItemClickListener {
