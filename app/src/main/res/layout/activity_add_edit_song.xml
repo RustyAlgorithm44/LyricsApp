@@ -74,16 +74,18 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputComposerDropdownLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Composer"
                         android:layout_marginTop="8dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputComposer"
+                        <AutoCompleteTextView
+                            android:id="@+id/autoCompleteComposerInput"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 

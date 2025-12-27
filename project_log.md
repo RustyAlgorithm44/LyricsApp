@@ -115,9 +115,15 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Ensured the toolbar title text color is theme-aware across all activities.
     *   Removed the unused 3-dot overflow menu from the main page.
 *   **Incremented App Version:** Incremented the app version to 1.3.0.
+*   **Composer and Deity Input UX:**
+    *   Added a dropdown for the Composer field in the Add/Edit screen, populated with existing composers.
+    *   Made the Composer field optional (not mandatory).
+    *   Both Deity and Composer inputs now conditionally appear as dropdowns only if there is existing data to show; otherwise, they function as standard text fields.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-4. The "scroll-bar" is seen right after opening a detail lyrics page, and it stays seen until I scroll. Then it fades away. I want it to fade away before I touch the screen also.
+5. In the detailed lyrics view page, just like how there is a back button on the left side of the bar, I want the Edit option on the right, and that should open edit page for that song, and after updating should come back to this page itself, and not home page. Use the icon that is there for edit in the main page.
+6. Can there be text formatting like Bold or underline for headings like pallavi, charanam etc
+7. Side panel shouldn't be there in add song and edit song page. It should just have a back button in that place like in detail lyrics view.

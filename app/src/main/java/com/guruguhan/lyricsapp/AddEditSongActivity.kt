@@ -22,6 +22,7 @@ import com.guruguhan.lyricsapp.data.Song
 import com.guruguhan.lyricsapp.databinding.ActivityAddEditSongBinding
 import com.guruguhan.lyricsapp.databinding.ItemLanguageInputBinding
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -76,6 +77,7 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         }
 
         setupDeityInput()
+        setupComposerInput()
 
         binding.addLanguageButton.setOnClickListener {
             val usedLanguages = mutableSetOf<String>()
@@ -105,7 +107,7 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     }
     private fun populateFields(song: Song) {
         binding.inputTitle.setText(song.title)
-        binding.inputComposer.setText(song.composer)
+        binding.autoCompleteComposerInput.setText(song.composer)
         binding.inputRagam.setText(song.ragam)
         binding.autoCompleteDeityInput.setText(song.deity)
         binding.inputYoutubeLink.setText(song.youtubeLink)
@@ -121,8 +123,26 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     private fun setupDeityInput() {
         lifecycleScope.launch {
             val deities = songViewModel.uniqueDeities.first()
-            val adapter = ArrayAdapter(this@AddEditSongActivity, android.R.layout.simple_dropdown_item_1line, deities)
-            binding.autoCompleteDeityInput.setAdapter(adapter)
+            if (deities.isNotEmpty()) {
+                val adapter = ArrayAdapter(this@AddEditSongActivity, android.R.layout.simple_dropdown_item_1line, deities)
+                binding.autoCompleteDeityInput.setAdapter(adapter)
+                binding.inputDeityDropdownLayout.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+            } else {
+                binding.inputDeityDropdownLayout.endIconMode = TextInputLayout.END_ICON_NONE
+            }
+        }
+    }
+
+    private fun setupComposerInput() {
+        lifecycleScope.launch {
+            val composers = songViewModel.uniqueComposers.first()
+            if (composers.isNotEmpty()) {
+                val adapter = ArrayAdapter(this@AddEditSongActivity, android.R.layout.simple_dropdown_item_1line, composers)
+                binding.autoCompleteComposerInput.setAdapter(adapter)
+                binding.inputComposerDropdownLayout.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+            } else {
+                binding.inputComposerDropdownLayout.endIconMode = TextInputLayout.END_ICON_NONE
+            }
         }
     }
 
@@ -214,7 +234,7 @@ class AddEditSongActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
     private fun saveSong() {
         val title = binding.inputTitle.text.toString().trim()
-        val composer = binding.inputComposer.text.toString().trim()
+        val composer = binding.autoCompleteComposerInput.text.toString().trim()
         val ragam = binding.inputRagam.text.toString().trim()
         val deity = binding.autoCompleteDeityInput.text.toString().trim()
         val youtubeLink = binding.inputYoutubeLink.text.toString().trim().nullIfBlank()
