@@ -17,6 +17,8 @@ import android.util.TypedValue
 import android.net.Uri // Keep Uri import for opening the link
 import android.view.View
 import android.graphics.Color
+import android.view.Menu
+import android.view.MenuItem
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -38,6 +40,8 @@ class SongDetailActivity : AppCompatActivity() {
 
     private var languages: List<String> = emptyList()
     private var currentLanguageIndex = 0
+    private var songId: Int = -1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +61,7 @@ class SongDetailActivity : AppCompatActivity() {
         originalTextSize = detailLyricsTextView.textSize / resources.displayMetrics.scaledDensity
         scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
 
-        val songId = intent.getIntExtra("SONG_ID", -1)
+        songId = intent.getIntExtra("SONG_ID", -1)
         if (songId == -1) {
             finish()
             return
@@ -142,6 +146,23 @@ class SongDetailActivity : AppCompatActivity() {
     private fun updateLyricsDisplay(currentSong: Song) {
         val currentLanguage = languages.getOrNull(currentLanguageIndex)
         detailLyricsTextView.text = currentSong.lyrics[currentLanguage] ?: ""
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_song_detail, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_edit -> {
+                val intent = Intent(this, AddEditSongActivity::class.java)
+                intent.putExtra("SONG_ID", songId)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
