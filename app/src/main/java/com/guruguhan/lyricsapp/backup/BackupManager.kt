@@ -21,6 +21,7 @@ object BackupManager {
                 put("deity", song.deity)
                 put("ragam", song.ragam)
                 put("lyrics", JSONObject(song.lyrics as Map<*, *>))
+                put("categories", JSONArray(song.categories))
                 put("youtubeLink", song.youtubeLink)
                 put("isFavorite", song.isFavorite)
             }
@@ -53,6 +54,12 @@ object BackupManager {
             val youtubeLink = obj.optString("youtubeLink", null)
             val ragam = obj.optString("ragam", null)
             val isFavorite = obj.optBoolean("isFavorite", false)
+            val categoriesArray = obj.optJSONArray("categories")
+            val categories = if (categoriesArray != null) {
+                (0 until categoriesArray.length()).map { categoriesArray.getString(it) }
+            } else {
+                emptyList()
+            }
 
             val existingSong = dao.findSongByTitleAndComposer(title, composer)
             if (existingSong == null) {
@@ -62,6 +69,7 @@ object BackupManager {
                         composer = composer,
                         deity = deity,
                         lyrics = lyricsMap,
+                        categories = categories,
                         youtubeLink = youtubeLink,
                         ragam = ragam,
                         isFavorite = isFavorite

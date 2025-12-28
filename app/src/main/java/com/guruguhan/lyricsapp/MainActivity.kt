@@ -67,7 +67,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private enum class ViewMode {
         ALL_SONGS,
         DEITY_LIST,
-        COMPOSER_LIST
+        COMPOSER_LIST,
+        CATEGORY_LIST
     }
 
     private var currentViewMode = ViewMode.ALL_SONGS
@@ -149,6 +150,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     currentViewMode = ViewMode.COMPOSER_LIST
                     updateUI()
                 }
+                R.id.chipCategory -> {
+                    currentViewMode = ViewMode.CATEGORY_LIST
+                    updateUI()
+                }
             }
         }
 
@@ -218,6 +223,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val nonNullKeyMap = songMap.filterKeys { it != null }.mapKeys { it.key!! }
                         expandableAdapter.submitList(nonNullKeyMap)
                         updateEmptyState(nonNullKeyMap.isEmpty())
+                    }
+                }
+            }
+            ViewMode.CATEGORY_LIST -> {
+                recyclerView.adapter = expandableAdapter
+                observeJob = lifecycleScope.launch {
+                    viewModel.songsByCategory.collect { songMap ->
+                        expandableAdapter.submitList(songMap)
+                        updateEmptyState(songMap.isEmpty())
                     }
                 }
             }

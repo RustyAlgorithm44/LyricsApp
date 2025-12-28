@@ -20,6 +20,8 @@ import com.guruguhan.lyricsapp.databinding.ActivityAddEditSongBinding
 import com.guruguhan.lyricsapp.databinding.ItemLanguageInputBinding
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import android.text.Html
+import android.view.inputmethod.EditorInfo
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -60,6 +62,7 @@ class AddEditSongActivity : AppCompatActivity() {
 
         setupDeityInput()
         setupComposerInput()
+        setupCategoryInput()
 
         binding.addLanguageButton.setOnClickListener {
             val usedLanguages = mutableSetOf<String>()
@@ -93,6 +96,12 @@ class AddEditSongActivity : AppCompatActivity() {
         binding.autoCompleteComposerInput.setText(song.composer)
         binding.inputRagam.setText(song.ragam)
         binding.autoCompleteDeityInput.setText(song.deity)
+
+        binding.categoryChipGroup.removeAllViews()
+        song.categories.forEach { category ->
+            addCategoryChip(category)
+        }
+
         binding.inputYoutubeLink.setText(song.youtubeLink)
         if (song.lyrics.isNotEmpty()) {
             song.lyrics.forEach { (lang, lyr) ->
@@ -126,6 +135,37 @@ class AddEditSongActivity : AppCompatActivity() {
             } else {
                 binding.inputComposerDropdownLayout.endIconMode = TextInputLayout.END_ICON_NONE
             }
+        }
+    }
+
+    private fun setupCategoryInput() {
+        lifecycleScope.launch {
+            val categories = songViewModel.uniqueCategories.first()
+            if (categories.isNotEmpty()) {
+                val adapter = ArrayAdapter(this@AddEditSongActivity, android.R.layout.simple_dropdown_item_1line, categories)
+                binding.autoCompleteCategoryInput.setAdapter(adapter)
+                binding.inputCategoryLayout.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+            } else {
+                binding.inputCategoryLayout.endIconMode = TextInputLayout.END_ICON_NONE
+            }
+        }
+
+        binding.autoCompleteCategoryInput.setOnItemClickListener { parent, _, position, _ ->
+            val selectedCategory = parent.getItemAtPosition(position) as String
+            addCategoryChip(selectedCategory)
+            binding.autoCompleteCategoryInput.setText("") // Clear input
+        }
+
+        binding.autoCompleteCategoryInput.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val newCategory = v.text.toString().trim()
+                if (newCategory.isNotEmpty()) {
+                    addCategoryChip(newCategory)
+                    v.text = "" // Clear input
+                    return@setOnEditorActionListener true
+                }
+            }
+            false
         }
     }
 
@@ -174,6 +214,24 @@ class AddEditSongActivity : AppCompatActivity() {
         binding.lyricsContainer.addView(rowBinding.root)
     }
 
+    private fun addCategoryChip(category: String) {
+        // Prevent duplicate chips
+        for (i in 0 until binding.categoryChipGroup.childCount) {
+            val chip = binding.categoryChipGroup.getChildAt(i) as Chip
+            if (chip.text.toString().equals(category, ignoreCase = true)) {
+                return
+            }
+        }
+
+        val chip = Chip(this)
+        chip.text = category
+        chip.isCloseIconVisible = true
+        chip.setOnCloseIconClickListener {
+            binding.categoryChipGroup.removeView(it)
+        }
+        binding.categoryChipGroup.addView(chip)
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
@@ -184,6 +242,16 @@ class AddEditSongActivity : AppCompatActivity() {
         val composer = binding.autoCompleteComposerInput.text.toString().trim()
         val ragam = binding.inputRagam.text.toString().trim()
         val deity = binding.autoCompleteDeityInput.text.toString().trim()
+        val categories = (0 until binding.categoryChipGroup.childCount).map {
+            (binding.categoryChipGroup.getChildAt(it) as Chip).text.toString()
+        }.toMutableList()
+
+        // Add any pending text from the input field that hasn't been converted to a chip yet
+        val pendingCategory = binding.autoCompleteCategoryInput.text.toString().trim()
+        if (pendingCategory.isNotEmpty() && !categories.any { it.equals(pendingCategory, ignoreCase = true) }) {
+            categories.add(pendingCategory)
+        }
+        
         val youtubeLink = binding.inputYoutubeLink.text.toString().trim().nullIfBlank()
 
         binding.inputTitleLayout.error = null
@@ -259,6 +327,7 @@ class AddEditSongActivity : AppCompatActivity() {
             ragam = ragam,
             deity = deity,
             lyrics = formattedLyricsMap,
+            categories = categories,
             youtubeLink = youtubeLink
         ) ?: Song(
             title = title,
@@ -266,6 +335,7 @@ class AddEditSongActivity : AppCompatActivity() {
             ragam = ragam,
             deity = deity,
             lyrics = formattedLyricsMap,
+            categories = categories,
             youtubeLink = youtubeLink
         )
 

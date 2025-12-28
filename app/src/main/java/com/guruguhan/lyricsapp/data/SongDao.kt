@@ -48,6 +48,9 @@ interface SongDao {
     @Query("SELECT DISTINCT composer FROM songs WHERE composer IS NOT NULL AND composer != '' ORDER BY composer ASC")
     fun getUniqueComposers(): Flow<List<String>>
 
+    @Query("SELECT categories FROM songs")
+    fun getAllCategories(): Flow<List<String>>
+
     @Query("SELECT * FROM songs WHERE deity = :deity ORDER BY title ASC")
     fun getSongsByDeity(deity: String): Flow<List<Song>>
 

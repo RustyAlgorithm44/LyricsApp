@@ -134,9 +134,19 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   The edit page converts the HTML back to the Markdown-like syntax for a seamless editing experience.
     *   This removes the previous, more rigid, "Pallavi/Anupallavi/Charanam" formatting logic.
 *   **Incremented App Version:** Incremented the app version to 1.3.3.
+*   **Song Categories Feature:**
+    *   Upgraded the category input in `AddEditSongActivity` from a simple text field to an interactive tagging UI.
+    *   Users can now add categories using an `AutoCompleteTextView` that provides suggestions from all existing categories in the database.
+    *   Selected categories are displayed as closable `Chip`s in a `ChipGroup`, allowing for easy removal.
+    *   The `Song` data model, database (with migration to version 7), and `TypeConverters` were updated to support storing categories as a `List<String>`.
+    *   `MainActivity` now includes a "By Category" filter chip. Selecting this chip displays an expandable, grouped view of songs by their categories, similar to filtering by Deity or Composer.
+    *   The `BackupManager` has been updated to correctly export and import the new song categories data.
+*   **Fix Filter Chip UI:** Made the filter `ChipGroup` on the main screen horizontally scrollable to prevent the chips from wrapping to a new line on smaller screens.
+*   **Fix Category Input Bugs:**
+    *   Made the dropdown menu for category suggestions appear only if there are existing categories to suggest.
+    *   Improved the save logic to ensure that a category typed into the input field is saved even if the user doesn't press 'Done' or select it from the list, preventing data loss.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-4. Each song can have a category tagged to it.. Like namavali, abhang, thevaram, arutpa etc.. and this can be another "by categ." filter in the main page. Users will enter this as an optional input right before the reference link in the addsong or editsong page. A song can have more than 1 category tagged. But this doesn't appear in any other page. Get it?

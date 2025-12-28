@@ -26,9 +26,15 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
     val songsByComposer = allSongs.map { songs ->
         songs.filter { !it.composer.isNullOrBlank() }.groupBy { it.composer!! }
     }
+    val songsByCategory = allSongs.map { songs ->
+        songs.flatMap { song ->
+            song.categories.map { category -> category to song }
+        }.groupBy({ it.first }, { it.second })
+    }
 
     private val _errorEvents = MutableSharedFlow<String>()
     val errorEvents = _errorEvents.asSharedFlow()
+
 
     fun insert(song: Song) = viewModelScope.launch {
         try {
@@ -67,6 +73,7 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     val uniqueDeities = repository.getUniqueDeities()
     val uniqueComposers = repository.getUniqueComposers()
+    val uniqueCategories = repository.getUniqueCategories()
 
     fun getSongsByDeity(deity: String) = repository.getSongsByDeity(deity)
     fun getSongsByComposer(composer: String) = repository.getSongsByComposer(composer)

@@ -12,6 +12,7 @@ data class Song(
     val deity: String? = null,
     val ragam: String? = null,
     val lyrics: Map<String, String>,
+    val categories: List<String> = emptyList(),
     val youtubeLink: String? = null,
     val isFavorite: Boolean = false
 )

@@ -1,6 +1,7 @@
 package com.guruguhan.lyricsapp.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class SongRepository(private val songDao: SongDao) {
 
@@ -25,6 +26,25 @@ class SongRepository(private val songDao: SongDao) {
     fun getUniqueDeities() = songDao.getUniqueDeities()
 
     fun getUniqueComposers() = songDao.getUniqueComposers()
+
+    fun getUniqueCategories(): Flow<List<String>> {
+        val gson = com.google.gson.Gson()
+        val listType = object : com.google.gson.reflect.TypeToken<List<String>>() {}.type
+
+        return songDao.getAllCategories().map { jsonStringList ->
+            jsonStringList
+                .flatMap { jsonString ->
+                    try {
+                        gson.fromJson<List<String>>(jsonString, listType)
+                    } catch (e: Exception) {
+                        emptyList<String>()
+                    }
+                }
+                .filter { it.isNotBlank() }
+                .distinct()
+                .sorted()
+        }
+    }
 
     fun getSongsByDeity(deity: String) = songDao.getSongsByDeity(deity)
 

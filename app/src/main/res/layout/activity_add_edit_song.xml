@@ -119,6 +119,30 @@
                     android:layout_gravity="end"/>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputCategoryLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Add Category">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteCategoryInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="textCapWords" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/categoryChipGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputYoutubeLinkLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Reference Link"
