@@ -128,8 +128,15 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   The song detail page now renders this HTML to display the formatted text.
     *   The edit page decodes the HTML to show plain text for a better editing experience.
 *   **Incremented App Version:** Incremented the app version to 1.3.2.
+*   **Markdown-like Lyrics Formatting:** Replaced the automatic heading detection with a flexible Markdown-like system.
+    *   Users can now format lyrics using `*text*` for bold and `_text_` for underline.
+    *   On save, this syntax is converted to HTML (`<b>`, `<u>`).
+    *   The edit page converts the HTML back to the Markdown-like syntax for a seamless editing experience.
+    *   This removes the previous, more rigid, "Pallavi/Anupallavi/Charanam" formatting logic.
+*   **Incremented App Version:** Incremented the app version to 1.3.3.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+4. Each song can have a category tagged to it.. Like namavali, abhang, thevaram, arutpa etc.. and this can be another "by categ." filter in the main page. Users will enter this as an optional input right before the reference link in the addsong or editsong page. A song can have more than 1 category tagged. But this doesn't appear in any other page. Get it?

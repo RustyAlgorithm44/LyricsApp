@@ -135,13 +135,13 @@ class AddEditSongActivity : AppCompatActivity() {
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, availableLanguages)
         rowBinding.languageSpinner.adapter = spinnerAdapter
 
-        // Convert HTML to plain text for editing
-        val plainTextLyrics = if (lyrics.isNotEmpty()) {
-            Html.fromHtml(lyrics, Html.FROM_HTML_MODE_LEGACY).toString()
+        // Convert HTML to markdown for editing
+        val markdownLyrics = if (lyrics.isNotEmpty()) {
+            convertHtmlToMarkdown(lyrics)
         } else {
             ""
         }
-        rowBinding.inputLyrics.setText(plainTextLyrics)
+        rowBinding.inputLyrics.setText(markdownLyrics)
 
         val languagePosition = availableLanguages.indexOf(language)
         if (language.isNotBlank() && languagePosition != -1) {
@@ -250,11 +250,7 @@ class AddEditSongActivity : AppCompatActivity() {
 
         val formattedLyricsMap = mutableMapOf<String, String>()
         lyricsMap.forEach { (lang, lyr) ->
-            var formattedLyr = lyr.replace("\n", "<br>")
-            formattedLyr = formattedLyr.replace(Regex("pallavi\\s*:?", RegexOption.IGNORE_CASE), "<b><u>Pallavi:</u></b>")
-            formattedLyr = formattedLyr.replace(Regex("anupallavi\\s*:?", RegexOption.IGNORE_CASE), "<b><u>Anupallavi:</u></b>")
-            formattedLyr = formattedLyr.replace(Regex("ch?ara(n|N)am\\s*:?", RegexOption.IGNORE_CASE), "<b><u>Charanam:</u></b>")
-            formattedLyricsMap[lang] = formattedLyr
+            formattedLyricsMap[lang] = convertMarkdownToHtml(lyr)
         }
 
         val songToSave = currentSong?.copy(
@@ -282,6 +278,32 @@ class AddEditSongActivity : AppCompatActivity() {
         }
         setResult(Activity.RESULT_OK)
         finish()
+    }
+
+    private fun convertMarkdownToHtml(markdown: String): String {
+        var html = markdown.replace("\n", "<br>")
+        // Combined: *_text_* or _*text*_
+        html = html.replace(Regex("(?s)\\*_((?:.|\\n)+?)\\_\\*"), "<b><u>$1</u></b>")
+        html = html.replace(Regex("(?s)_\\*((?:.|\\n)+?)\\*_"), "<b><u>$1</u></b>")
+        // Bold: *text*
+        html = html.replace(Regex("(?s)\\*((?:.|\\n)+?)\\*"), "<b>$1</b>")
+        // Underline: _text_
+        html = html.replace(Regex("(?s)_((?:.|\\n)+?)_"), "<u>$1</u>")
+        return html
+    }
+
+    private fun convertHtmlToMarkdown(html: String): String {
+        var markdown = html
+        // Combined: <b><u>text</u></b> or <u><b>text</b></u>
+        markdown = markdown.replace(Regex("(?i)<b><u>((?:.|\\n)+?)</u></b>"), "*_$1_*")
+        markdown = markdown.replace(Regex("(?i)<u><b>((?:.|\\n)+?)</b></u>"), "*_$1_*")
+        // Bold: <b>text</b>
+        markdown = markdown.replace(Regex("(?i)<b>((?:.|\\n)+?)</b>"), "*$1*")
+        // Underline: <u>text</u>
+        markdown = markdown.replace(Regex("(?i)<u>((?:.|\\n)+?)</u>"), "_$1_")
+        // Line breaks
+        markdown = markdown.replace(Regex("(?i)<br/?>"), "\n")
+        return markdown
     }
 
     private fun String.nullIfBlank(): String? {
