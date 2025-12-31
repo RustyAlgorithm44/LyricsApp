@@ -98,41 +98,10 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <FrameLayout
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/songRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:paddingBottom="80dp" 
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-
-                <TextView
-                    android:id="@+id/emptyStateTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_gravity="center"
-                    android:text="No songs yet. Tap '+' to add one!"
-                    android:textSize="18sp"
-                    android:padding="16dp"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/noSearchResultsTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_gravity="center"
-                    android:text="No songs found for your search."
-                    android:textSize="18sp"
-                    android:padding="16dp"
-                    android:visibility="gone" />
-
-            </FrameLayout>
+                android:layout_height="match_parent" />
 
         </LinearLayout>
 

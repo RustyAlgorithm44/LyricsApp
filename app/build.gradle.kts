@@ -65,5 +65,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
 
+    // ViewPager2
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    // Fragment KTX
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
+
     implementation("com.google.code.gson:gson:2.10.1")
 }

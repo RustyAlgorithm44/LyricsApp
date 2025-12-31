@@ -1,0 +1,6 @@
+> Task :app:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn't support language version 2.0+. Falling back to 1.9.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/MainActivity.kt:202:6 Missing '}
+
+> Task :app:kaptGenerateStubsDebugKotlin FAILED
+
