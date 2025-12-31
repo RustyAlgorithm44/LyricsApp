@@ -19,6 +19,9 @@ import com.guruguhan.lyricsapp.backup.BackupManager
 import com.guruguhan.lyricsapp.data.AppDatabase
 import com.guruguhan.lyricsapp.ui.ThemeHelper
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -97,7 +100,10 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         
         // Export button
         findViewById<Button>(R.id.exportButton).setOnClickListener {
-            exportLauncher.launch("lyrics_backup.json")
+            val dateFormat = SimpleDateFormat("ddMMyyyy", Locale.getDefault())
+            val date = dateFormat.format(Date())
+            val fileName = "lyrics_backup_$date.json"
+            exportLauncher.launch(fileName)
         }
 
         // Import button

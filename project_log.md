@@ -145,8 +145,12 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
 *   **Fix Category Input Bugs:**
     *   Made the dropdown menu for category suggestions appear only if there are existing categories to suggest.
     *   Improved the save logic to ensure that a category typed into the input field is saved even if the user doesn't press 'Done' or select it from the list, preventing data loss.
+*   **Timestamped Backups:** Backup filenames are now automatically timestamped with the current date (e.g., `lyrics_backup_31122025.json`), making it easier to manage multiple backups.
+*   **Improved Grouped List UI:** Added vertical margins to the song cards within the "By Deity", "By Composer", and "By Category" views to improve visual separation and readability.
 
 **Current To-Do / Areas for Improvement:**
 1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
+4. Swipe screen left or right to change the view from "All Songs", "By Deity" and others.
+5. Default language for song?
