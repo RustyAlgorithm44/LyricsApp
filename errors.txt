@@ -1,3 +1,14 @@
 > Task :app:compileDebugKotlin FAILED
-e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/AllSongsFragment.kt:123:46 Unresolved reference 'value'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/CategoryListFragment.kt:49:24 Unresolved reference 'launch'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/CategoryListFragment.kt:50:39 Suspend function 'suspend fun collect(collector: FlowCollector<Map<String, List<Song>>>): Unit' should be called only from a coroutine or another suspend function.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/CategoryListFragment.kt:57:24 Unresolved reference 'launch'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/CategoryListFragment.kt:58:35 Suspend function 'suspend fun collect(collector: FlowCollector<String?>): Nothing' should be called only from a coroutine or another suspend function.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/ComposerListFragment.kt:49:24 Unresolved reference 'launch'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/ComposerListFragment.kt:50:39 Suspend function 'suspend fun collect(collector: FlowCollector<Map<String, List<Song>>>): Unit' should be called only from a coroutine or another suspend function.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/ComposerListFragment.kt:58:24 Unresolved reference 'launch'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/ComposerListFragment.kt:59:35 Suspend function 'suspend fun collect(collector: FlowCollector<String?>): Nothing' should be called only from a coroutine or another suspend function.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/DeityListFragment.kt:49:24 Unresolved reference 'launch'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/DeityListFragment.kt:50:36 Suspend function 'suspend fun collect(collector: FlowCollector<Map<String?, List<Song>>>): Unit' should be called only from a coroutine or another suspend function.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/DeityListFragment.kt:58:24 Unresolved reference 'launch'.
+e: file:///C:/Users/Guruguhan/AndroidStudioProjects/LyricsApp/app/src/main/java/com/guruguhan/lyricsapp/fragments/DeityListFragment.kt:59:35 Suspend function 'suspend fun collect(collector: FlowCollector<String?>): Nothing' should be called only from a coroutine or another suspend function.
 

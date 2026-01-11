@@ -168,9 +168,11 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   The toolbar dynamically updates its title (showing selection count), inflates contextual menu items (`delete`, `edit`), and replaces the navigation drawer toggle with a theme-sensitive "X" (close) icon.
     *   The "edit" button is enabled only when a single item is selected.
     *   The "click outside to deselect" functionality has been implemented by attaching `OnClickListener`s to the `CoordinatorLayout`, `TextInputLayout` (search bar), `ChipGroup`, and an `OnItemTouchListener` to the `RecyclerView` empty space. This ensures that any click outside of a selected song item clears the selection.
+*   **Fix Song Click in Grouped Lists:**
+    *   **Fixed:** Clicking on a song in the expandable grouped views (By Deity, Composer, Category) now correctly opens the song detail page. The `onSongClick` lambda in `ExpandableGroupAdapter` was implemented to launch `SongDetailActivity` with the clicked song's ID.
+*   **Remove Side Panel from Settings Page:** Replaced the navigation drawer with a simple back button in the toolbar, providing a streamlined user experience for the settings screen.
 
 **Current To-Do / Areas for Improvement:**
 1.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
-3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-4.  **Fix Song Click in Grouped Lists:** Clicking on a song in the expandable grouped views (By Deity, Composer, Category) does not open the song detail page. This needs to be fixed to allow navigation from all song lists.
+3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)

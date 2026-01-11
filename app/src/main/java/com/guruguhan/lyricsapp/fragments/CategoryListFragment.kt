@@ -14,6 +14,8 @@ import com.guruguhan.lyricsapp.R
 import com.guruguhan.lyricsapp.ui.ExpandableGroupAdapter
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
+import android.content.Intent
+import com.guruguhan.lyricsapp.SongDetailActivity
 
 class CategoryListFragment : Fragment() {
 
@@ -36,8 +38,10 @@ class CategoryListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         expandableAdapter = ExpandableGroupAdapter { song ->
-            // Open SongDetailActivity for the clicked song
-            // This will likely be handled by the MainActivity eventually
+            val intent = Intent(requireActivity(), SongDetailActivity::class.java).apply {
+                putExtra("SONG_ID", song.id)
+            }
+            startActivity(intent)
         }
 
         recyclerView.layoutManager = LinearLayoutManager(context)

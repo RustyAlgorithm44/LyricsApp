@@ -287,6 +287,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.menu.findItem(R.id.nav_home).isChecked = true
+    }
+
     override fun onDestroy() {
         viewPager.unregisterOnPageChangeCallback(viewPagerPageChangeCallback)
         super.onDestroy()

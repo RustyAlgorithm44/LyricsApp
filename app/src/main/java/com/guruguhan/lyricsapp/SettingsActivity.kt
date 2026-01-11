@@ -7,14 +7,10 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
 import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.navigation.NavigationView
 import com.guruguhan.lyricsapp.backup.BackupManager
 import com.guruguhan.lyricsapp.data.AppDatabase
 import com.guruguhan.lyricsapp.ui.ThemeHelper
@@ -23,11 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var toggle: ActionBarDrawerToggle
-
+class SettingsActivity : AppCompatActivity() {
 
     private val exportLauncher =
         registerForActivityResult(
@@ -74,22 +66,14 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        drawerLayout = findViewById(R.id.drawer_layout)
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
-
-        toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button
+        supportActionBar?.title = "Settings" // Ensure title is set
 
         val typedValue = TypedValue()
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
-        toggle.drawerArrowDrawable.color = typedValue.data
+        val tintedDrawable = toolbar.navigationIcon?.mutate()
+        tintedDrawable?.setTint(typedValue.data)
+        toolbar.navigationIcon = tintedDrawable
 
         // Show song count
         lifecycleScope.launch {
@@ -168,53 +152,9 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         }
     }
     
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_home -> {
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(intent)
-                finish()
-            }
-            R.id.nav_favorites -> {
-                val intent = Intent(this, FavoritesActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(intent)
-                finish()
-            }
-            R.id.nav_settings -> {
-                // Already in Settings
-                drawerLayout.closeDrawer(GravityCompat.START)
-            }
-            R.id.nav_share -> {
-                shareApk()
-            }
-        }
-        drawerLayout.closeDrawer(GravityCompat.START)
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
         return true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.menu.findItem(R.id.nav_settings).isChecked = true
-    }
-
-    private fun shareApk() {
-        val shareText = "Check out the LyricsApp! Download it from: [Google Play Store link placeholder]"
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, shareText)
-        }
-        startActivity(Intent.createChooser(shareIntent, "Share App via"))
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private suspend fun refreshSongCount() {
