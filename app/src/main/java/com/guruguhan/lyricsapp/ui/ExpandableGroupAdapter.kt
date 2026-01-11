@@ -3,16 +3,20 @@ package com.guruguhan.lyricsapp.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.guruguhan.lyricsapp.R
 import com.guruguhan.lyricsapp.data.Song
+import java.util.*
 
 class ExpandableGroupAdapter(
     private val onSongClick: (Song) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
 
+    private var originalGroupedData: List<Pair<String, List<Song>>> = emptyList()
     private var groupedData: List<Pair<String, List<Song>>> = emptyList()
     private val displayList = mutableListOf<DisplayItem>()
     private val expandedGroups = mutableSetOf<String>()
@@ -28,8 +32,8 @@ class ExpandableGroupAdapter(
     }
 
     fun submitList(data: Map<String, List<Song>>) {
-        expandedGroups.clear()
-        groupedData = data.entries.sortedBy { it.key }.map { it.key to it.value.sortedBy { s -> s.title } }
+        originalGroupedData = data.entries.sortedBy { it.key }.map { it.key to it.value.sortedBy { s -> s.title } }
+        groupedData = originalGroupedData
         rebuildDisplayList()
         notifyDataSetChanged()
     }
@@ -42,6 +46,47 @@ class ExpandableGroupAdapter(
                 songs.forEach { song ->
                     displayList.add(DisplayItem.SongItem(song))
                 }
+            }
+        }
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val filteredData = if (constraint.isNullOrBlank()) {
+                    originalGroupedData
+                } else {
+                    val filterPattern = constraint.toString().lowercase(Locale.getDefault()).trim()
+                    originalGroupedData.mapNotNull { (groupName, songs) ->
+                        val groupNameMatches = groupName.lowercase(Locale.getDefault()).contains(filterPattern)
+                        if (groupNameMatches) {
+                            // If group name matches, include all its songs
+                            groupName to songs
+                        } else {
+                            // Otherwise, check if any song in the group matches
+                            val matchingSongs = songs.filter { song ->
+                                song.title.lowercase(Locale.getDefault()).contains(filterPattern) ||
+                                song.composer.lowercase(Locale.getDefault()).contains(filterPattern) ||
+                                (song.deity?.lowercase(Locale.getDefault())?.contains(filterPattern) ?: false) ||
+                                (song.ragam?.lowercase(Locale.getDefault())?.contains(filterPattern) ?: false)
+                            }
+                            if (matchingSongs.isNotEmpty()) {
+                                groupName to matchingSongs
+                            } else {
+                                null // Exclude group if nothing matches
+                            }
+                        }
+                    }
+                }
+                val results = FilterResults()
+                results.values = filteredData
+                return results
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                groupedData = results?.values as? List<Pair<String, List<Song>>> ?: emptyList()
+                rebuildDisplayList()
+                notifyDataSetChanged()
             }
         }
     }

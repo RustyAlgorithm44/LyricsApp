@@ -50,5 +50,11 @@ class CategoryListFragment : Fragment() {
                 emptyStateTextView.text = "No Categories found."
             }
         }
+
+        lifecycleScope.launch {
+            viewModel.searchQuery.collect { query ->
+                expandableAdapter.filter.filter(query)
+            }
+        }
     }
 }

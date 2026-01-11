@@ -51,5 +51,11 @@ class ComposerListFragment : Fragment() {
                 emptyStateTextView.text = "No Composers found."
             }
         }
+
+        lifecycleScope.launch {
+            viewModel.searchQuery.collect { query ->
+                expandableAdapter.filter.filter(query)
+            }
+        }
     }
 }

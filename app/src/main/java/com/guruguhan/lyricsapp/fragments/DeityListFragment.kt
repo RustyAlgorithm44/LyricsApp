@@ -51,5 +51,11 @@ class DeityListFragment : Fragment() {
                 emptyStateTextView.text = "No Deities found."
             }
         }
+
+        lifecycleScope.launch {
+            viewModel.searchQuery.collect { query ->
+                expandableAdapter.filter.filter(query)
+            }
+        }
     }
 }

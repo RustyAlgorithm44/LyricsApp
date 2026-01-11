@@ -22,6 +22,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -138,6 +139,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val searchInput = findViewById<EditText>(R.id.searchInput)
+        searchInput.doAfterTextChanged { text ->
+            viewModel.setSearchQuery(text?.toString())
+        }
         setupUI(drawerLayout, searchInput)
     }
 

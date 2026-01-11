@@ -59,8 +59,14 @@ class AllSongsFragment : Fragment() {
 
         lifecycleScope.launch {
             viewModel.allSongs.collect { songs ->
-                adapter.submitList(songs)
+                adapter.setData(songs) // Use setData to provide the original list
                 emptyStateTextView.visibility = if (songs.isEmpty()) View.VISIBLE else View.GONE
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.searchQuery.collect { query ->
+                adapter.filter.filter(query)
             }
         }
     }

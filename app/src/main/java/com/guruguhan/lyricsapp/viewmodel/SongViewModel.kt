@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class SongViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -19,6 +21,13 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     val allSongs get() = repository.allSongs
     val favoriteSongs get() = repository.favoriteSongs
+
+    private val _searchQuery = MutableStateFlow<String?>(null)
+    val searchQuery = _searchQuery.asStateFlow()
+
+    fun setSearchQuery(query: String?) {
+        _searchQuery.value = query
+    }
 
     val songsByDeity = allSongs.map { songs ->
         songs.groupBy { it.deity }
