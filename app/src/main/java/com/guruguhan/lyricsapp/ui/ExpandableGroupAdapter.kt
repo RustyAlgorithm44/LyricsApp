@@ -32,6 +32,7 @@ class ExpandableGroupAdapter(
     }
 
     fun submitList(data: Map<String, List<Song>>) {
+        expandedGroups.clear() // Clear expanded state on new data
         originalGroupedData = data.entries.sortedBy { it.key }.map { it.key to it.value.sortedBy { s -> s.title } }
         groupedData = originalGroupedData
         rebuildDisplayList()
@@ -91,6 +92,7 @@ class ExpandableGroupAdapter(
         }
     }
 
+
     override fun getItemViewType(position: Int): Int {
         return when (displayList[position]) {
             is DisplayItem.Group -> TYPE_GROUP
@@ -118,7 +120,7 @@ class ExpandableGroupAdapter(
             is DisplayItem.Group -> {
                 (holder as GroupViewHolder).bind(item.name, expandedGroups.contains(item.name))
                 holder.itemView.setOnClickListener {
-                    handleGroupClick(item.name, holder.adapterPosition)
+                    handleGroupClick(item.name, holder.bindingAdapterPosition)
                 }
             }
             is DisplayItem.SongItem -> {

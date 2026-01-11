@@ -157,12 +157,20 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   Implemented drag-and-drop reordering for language-lyrics pairs in `AddEditSongActivity` using a `RecyclerView` and `ItemTouchHelper`.
     *   The `SongDetailActivity` now respects this order, displaying the top-most language by default.
     *   The underlying `Map` of lyrics is converted to a `LinkedHashMap` on save to preserve the user-defined order.
-    *   **Not fixed:** A severe performance issue where the UI would freeze when adding/editing languages on songs with many existing lyrics. The `LanguageLyricsAdapter` was re-architected to prevent `onItemSelected` and `onTextChanged` listeners from causing a cascade of inefficient `RecyclerView` updates (an O(N^2) update storm) by carefully managing when listeners are active. Now the app doesn't freeze, but the Add Language button is non-functional in the edit mode, but works fine while adding new songs.
+    *   **Not fixed:** A severe performance issue where the UI would freeze when adding/editing languages on songs with even just one existing lyric. The `LanguageLyricsAdapter` was re-architected to prevent `onItemSelected` and `onTextChanged` listeners from causing a cascade of inefficient `RecyclerView` updates (an O(N^2) update storm) by carefully managing when listeners are active. The "Add Language" button is now still non-functional in edit mode.
+*   **Search Functionality Restore:**
+    *   Re-implemented the search bar functionality in `MainActivity` to correctly filter content within the currently active fragment (`AllSongsFragment`, `DeityListFragment`, `ComposerListFragment`, `CategoryListFragment`).
+    *   The implementation uses a shared `SongViewModel` to propagate the search query to fragments.
+    *   Both `SongAdapter` and `ExpandableGroupAdapter` were made `Filterable`, supporting case-insensitive searches across relevant song fields (title, composer, deity, ragam, lyrics).
+*   **Action Mode Functionality Restore:**
+    *   Fully re-implemented multi-selection, edit, and delete functionality, primarily for the "All Songs" view.
+    *   The action mode is now driven by `SongViewModel` to manage selection state, allowing `MainActivity` to take over the toolbar.
+    *   The toolbar dynamically updates its title (showing selection count), inflates contextual menu items (`delete`, `edit`), and replaces the navigation drawer toggle with a theme-sensitive "X" (close) icon.
+    *   The "edit" button is enabled only when a single item is selected.
+    *   The "click outside to deselect" functionality has been implemented by attaching `OnClickListener`s to the `CoordinatorLayout`, `TextInputLayout` (search bar), `ChipGroup`, and an `OnItemTouchListener` to the `RecyclerView` empty space. This ensures that any click outside of a selected song item clears the selection.
 
 **Current To-Do / Areas for Improvement:**
 1.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-4.  **Search Functionality Restore:** Re-implement the search bar functionality in `MainActivity`, which should correctly filter the content within the currently active fragment (`AllSongsFragment`, `DeityListFragment`, etc.).
-5.  **Action Mode Functionality Restore:** The previously removed action mode (for multi-selection, edit, and delete) should be fully re-implemented and integrated to work correctly. It need not work in all the chip pages, but it should mainly work in the "all songs" chip page.
-6.  **Fix Song Click in Grouped Lists:** Clicking on a song in the expandable grouped views (By Deity, Composer, Category) does not open the song detail page. This needs to be fixed to allow navigation from all song lists.
+4.  **Fix Song Click in Grouped Lists:** Clicking on a song in the expandable grouped views (By Deity, Composer, Category) does not open the song detail page. This needs to be fixed to allow navigation from all song lists.

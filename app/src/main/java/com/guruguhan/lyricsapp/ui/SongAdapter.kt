@@ -22,21 +22,11 @@ class SongAdapter(
 ) : ListAdapter<Song, SongAdapter.SongViewHolder>(SongDiffCallback()), Filterable {
 
     private var originalList: List<Song> = emptyList()
-
-    val selectedSongs = mutableSetOf<Song>()
-    var isInActionMode: Boolean = false
+    var selectedSongs: Set<Song> = emptySet()
 
     fun setData(list: List<Song>?) {
         originalList = list ?: emptyList()
         submitList(originalList)
-    }
-
-    fun toggleSelection(song: Song) {
-        if (selectedSongs.contains(song)) {
-            selectedSongs.remove(song)
-        } else {
-            selectedSongs.add(song)
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {

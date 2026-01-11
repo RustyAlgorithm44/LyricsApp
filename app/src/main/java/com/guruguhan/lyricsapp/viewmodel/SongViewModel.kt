@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 class SongViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -24,6 +26,45 @@ class SongViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _searchQuery = MutableStateFlow<String?>(null)
     val searchQuery = _searchQuery.asStateFlow()
+
+    private val _selectedSongs = MutableStateFlow<Set<Song>>(emptySet())
+    val selectedSongs = _selectedSongs.asStateFlow()
+
+    val isInActionMode = _selectedSongs.map { it.isNotEmpty() }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+    private val _editCommand = MutableSharedFlow<Song>()
+    val editCommand = _editCommand.asSharedFlow()
+
+    fun requestEditForSelectedSong() {
+        viewModelScope.launch {
+            _selectedSongs.value.firstOrNull()?.let {
+                _editCommand.emit(it)
+            }
+        }
+    }
+
+    fun toggleSongSelection(song: Song) {
+        val currentSelection = _selectedSongs.value.toMutableSet()
+        if (currentSelection.contains(song)) {
+            currentSelection.remove(song)
+        } else {
+            currentSelection.add(song)
+        }
+        _selectedSongs.value = currentSelection
+    }
+
+    fun clearSelection() {
+        _selectedSongs.value = emptySet()
+    }
+
+    fun deleteSelectedSongs() {
+        _selectedSongs.value.forEach { delete(it) }
+        clearSelection()
+    }
 
     fun setSearchQuery(query: String?) {
         _searchQuery.value = query
