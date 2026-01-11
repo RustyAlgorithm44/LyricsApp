@@ -153,8 +153,16 @@ The application follows a consistent MVVM architectural pattern using Kotlin, Ro
     *   The `ChipGroup` on the main screen is fully synchronized with the `ViewPager2`: selecting a chip navigates the pager, and swiping the pager updates the selected chip.
     *   (Note: Action mode functionality has been temporarily removed and will need to be re-implemented to work with the new fragment-based structure.)
 
+*   **Reorderable Multi-Language Lyrics & Default Language:**
+    *   Implemented drag-and-drop reordering for language-lyrics pairs in `AddEditSongActivity` using a `RecyclerView` and `ItemTouchHelper`.
+    *   The `SongDetailActivity` now respects this order, displaying the top-most language by default.
+    *   The underlying `Map` of lyrics is converted to a `LinkedHashMap` on save to preserve the user-defined order.
+    *   **Not fixed:** A severe performance issue where the UI would freeze when adding/editing languages on songs with many existing lyrics. The `LanguageLyricsAdapter` was re-architected to prevent `onItemSelected` and `onTextChanged` listeners from causing a cascade of inefficient `RecyclerView` updates (an O(N^2) update storm) by carefully managing when listeners are active. Now the app doesn't freeze, but the Add Language button is non-functional in the edit mode, but works fine while adding new songs.
+
 **Current To-Do / Areas for Improvement:**
-1. **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
+1.  **Explore sharing individual or multiple songs (lyrics and details) to other users of the app (Possible, requires intent filters and data sharing mechanism).** - can it be like in the + button, they can open a shared json file that another user has shared?
 2.  **Unit/Integration Testing:** Expand test coverage.
 3.  **Import song info and lyrics from karnATik website (To do later - due to website parsing complexity)**
-4. Default language for song?
+4.  **Search Functionality Restore:** Re-implement the search bar functionality in `MainActivity`, which should correctly filter the content within the currently active fragment (`AllSongsFragment`, `DeityListFragment`, etc.).
+5.  **Action Mode Functionality Restore:** The previously removed action mode (for multi-selection, edit, and delete) should be fully re-implemented and integrated to work correctly. It need not work in all the chip pages, but it should mainly work in the "all songs" chip page.
+6.  **Fix Song Click in Grouped Lists:** Clicking on a song in the expandable grouped views (By Deity, Composer, Category) does not open the song detail page. This needs to be fixed to allow navigation from all song lists.

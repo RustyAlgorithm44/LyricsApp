@@ -104,11 +104,13 @@
                     android:layout_marginTop="16dp"
                     android:textAppearance="?attr/textAppearanceLabelLarge"/>
 
-                <LinearLayout
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/lyricsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"/>
+                    android:nestedScrollingEnabled="false"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_language_input"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/addLanguageButton"

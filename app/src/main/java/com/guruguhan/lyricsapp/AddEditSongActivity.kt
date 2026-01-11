@@ -1,29 +1,26 @@
 package com.guruguhan.lyricsapp
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.MenuItem
+import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.chip.Chip
 import com.google.android.material.textfield.TextInputLayout
-import com.guruguhan.lyricsapp.R
-import com.guruguhan.lyricsapp.MainActivity
-import com.guruguhan.lyricsapp.FavoritesActivity
-import com.guruguhan.lyricsapp.SettingsActivity
 import com.guruguhan.lyricsapp.data.Song
 import com.guruguhan.lyricsapp.databinding.ActivityAddEditSongBinding
-import com.guruguhan.lyricsapp.databinding.ItemLanguageInputBinding
+import com.guruguhan.lyricsapp.ui.ItemMoveCallback
+import com.guruguhan.lyricsapp.ui.LanguageLyricsAdapter
+import com.guruguhan.lyricsapp.ui.LyricsData
 import com.guruguhan.lyricsapp.viewmodel.SongViewModel
-import android.text.Html
-import android.view.inputmethod.EditorInfo
-import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.*
 
 class AddEditSongActivity : AppCompatActivity() {
 
@@ -32,6 +29,9 @@ class AddEditSongActivity : AppCompatActivity() {
     private var songId: Int = -1
     private var currentSong: Song? = null
     private val allLanguages = listOf("English", "தமிழ்", "संस्कृतम्", "ಕನ್ನಡ", "Other")
+    private lateinit var lyricsAdapter: LanguageLyricsAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +45,8 @@ class AddEditSongActivity : AppCompatActivity() {
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
+        setupRecyclerView()
+
         songId = intent.getIntExtra("SONG_ID", -1)
 
         if (songId != -1) {
@@ -57,7 +59,8 @@ class AddEditSongActivity : AppCompatActivity() {
             }
         } else {
             supportActionBar?.title = "Add Song"
-            addLanguageInputRow() // Add an initial empty row
+            lyricsAdapter.items.add(LyricsData("", "", ""))
+            lyricsAdapter.notifyItemInserted(0)
         }
 
         setupDeityInput()
@@ -65,32 +68,32 @@ class AddEditSongActivity : AppCompatActivity() {
         setupCategoryInput()
 
         binding.addLanguageButton.setOnClickListener {
-            val usedLanguages = mutableSetOf<String>()
-            for (i in 0 until binding.lyricsContainer.childCount) {
-                val rowView = binding.lyricsContainer.getChildAt(i)
-                val rowBinding = ItemLanguageInputBinding.bind(rowView)
-                val selectedLanguage = rowBinding.languageSpinner.selectedItem.toString()
-
-                if (selectedLanguage != "Other") {
-                    usedLanguages.add(selectedLanguage)
-                } else {
-                    val otherLang = rowBinding.otherLanguageInput.text.toString().trim()
-                    if (otherLang.isNotBlank()) usedLanguages.add(otherLang)
-                }
+            val usedLanguages = lyricsAdapter.getUsedLanguages()
+            if (allLanguages.filterNot { it == "Other" }.all { usedLanguages.contains(it) }) {
+                Toast.makeText(this, "All default languages have been added", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            val availableLanguages = allLanguages.filter { it !in usedLanguages || it == "Other" }
-            if (availableLanguages.size == 1 && availableLanguages.contains("Other") && usedLanguages.contains("Other")) {
-                Toast.makeText(this, "All languages have been added", Toast.LENGTH_SHORT).show()
-            }
-            else {
-                addLanguageInputRow(availableLanguages = availableLanguages)
-            }
+            lyricsAdapter.items.add(LyricsData("", "", ""))
+            lyricsAdapter.notifyItemInserted(lyricsAdapter.itemCount - 1)
         }
 
         binding.saveButton.setOnClickListener {
             saveSong()
         }
     }
+
+    private fun setupRecyclerView() {
+        val adapterItems = mutableListOf<LyricsData>()
+        lyricsAdapter = LanguageLyricsAdapter(this, adapterItems, allLanguages) { viewHolder ->
+            itemTouchHelper.startDrag(viewHolder)
+        }
+        binding.lyricsContainer.adapter = lyricsAdapter
+
+        val callback = ItemMoveCallback(lyricsAdapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.lyricsContainer)
+    }
+
     private fun populateFields(song: Song) {
         binding.inputTitle.setText(song.title)
         binding.autoCompleteComposerInput.setText(song.composer)
@@ -103,12 +106,23 @@ class AddEditSongActivity : AppCompatActivity() {
         }
 
         binding.inputYoutubeLink.setText(song.youtubeLink)
-        if (song.lyrics.isNotEmpty()) {
-            song.lyrics.forEach { (lang, lyr) ->
-                addLanguageInputRow(language = lang, lyrics = lyr)
-            }
+
+        val lyricsList = song.lyrics.map { (lang, lyr) ->
+            val markdownLyr = convertHtmlToMarkdown(lyr)
+            val isOther = !allLanguages.contains(lang)
+            LyricsData(
+                language = if (isOther) "Other" else lang,
+                lyrics = markdownLyr,
+                otherLanguage = if (isOther) lang else ""
+            )
+        }.toMutableList()
+
+        if (lyricsList.isNotEmpty()) {
+            lyricsAdapter.items.addAll(lyricsList)
+            lyricsAdapter.notifyDataSetChanged()
         } else {
-            addLanguageInputRow()
+            lyricsAdapter.items.add(LyricsData("", "", ""))
+            lyricsAdapter.notifyItemInserted(0)
         }
     }
 
@@ -169,53 +183,7 @@ class AddEditSongActivity : AppCompatActivity() {
         }
     }
 
-    private fun addLanguageInputRow(availableLanguages: List<String> = allLanguages, language: String = "", lyrics: String = "") {
-        val rowBinding = ItemLanguageInputBinding.inflate(layoutInflater, binding.lyricsContainer, false)
-
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, availableLanguages)
-        rowBinding.languageSpinner.adapter = spinnerAdapter
-
-        // Convert HTML to markdown for editing
-        val markdownLyrics = if (lyrics.isNotEmpty()) {
-            convertHtmlToMarkdown(lyrics)
-        } else {
-            ""
-        }
-        rowBinding.inputLyrics.setText(markdownLyrics)
-
-        val languagePosition = availableLanguages.indexOf(language)
-        if (language.isNotBlank() && languagePosition != -1) {
-            rowBinding.languageSpinner.setSelection(languagePosition)
-        } else if (language.isNotBlank()) {
-            rowBinding.languageSpinner.setSelection(availableLanguages.indexOf("Other"))
-            rowBinding.otherLanguageLayout.visibility = android.view.View.VISIBLE
-            rowBinding.otherLanguageInput.setText(language)
-        }
-
-
-        rowBinding.languageSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                if (availableLanguages[position] == "Other") {
-                    rowBinding.otherLanguageLayout.visibility = android.view.View.VISIBLE
-                }
-                else {
-                    rowBinding.otherLanguageLayout.visibility = android.view.View.GONE
-                }
-            }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {
-                rowBinding.otherLanguageLayout.visibility = android.view.View.GONE
-            }
-        }
-
-        rowBinding.removeLanguageButton.setOnClickListener {
-            binding.lyricsContainer.removeView(rowBinding.root)
-        }
-
-        binding.lyricsContainer.addView(rowBinding.root)
-    }
-
     private fun addCategoryChip(category: String) {
-        // Prevent duplicate chips
         for (i in 0 until binding.categoryChipGroup.childCount) {
             val chip = binding.categoryChipGroup.getChildAt(i) as Chip
             if (chip.text.toString().equals(category, ignoreCase = true)) {
@@ -246,12 +214,11 @@ class AddEditSongActivity : AppCompatActivity() {
             (binding.categoryChipGroup.getChildAt(it) as Chip).text.toString()
         }.toMutableList()
 
-        // Add any pending text from the input field that hasn't been converted to a chip yet
         val pendingCategory = binding.autoCompleteCategoryInput.text.toString().trim()
         if (pendingCategory.isNotEmpty() && !categories.any { it.equals(pendingCategory, ignoreCase = true) }) {
             categories.add(pendingCategory)
         }
-        
+
         val youtubeLink = binding.inputYoutubeLink.text.toString().trim().nullIfBlank()
 
         binding.inputTitleLayout.error = null
@@ -267,58 +234,34 @@ class AddEditSongActivity : AppCompatActivity() {
             return
         }
 
-        val lyricsMap = mutableMapOf<String, String>()
-        var isValidLyrics = true
-        for (i in 0 until binding.lyricsContainer.childCount) {
-            val rowView = binding.lyricsContainer.getChildAt(i)
-            val rowBinding = ItemLanguageInputBinding.bind(rowView)
+        val formattedLyricsMap = LinkedHashMap<String, String>()
+        val usedLanguages = mutableSetOf<String>()
 
-            val selectedLanguage = rowBinding.languageSpinner.selectedItem.toString()
-            val lang = if (selectedLanguage == "Other") {
-                rowBinding.otherLanguageInput.text?.toString()?.trim() ?: ""
-            } else {
-                selectedLanguage
+        for (item in lyricsAdapter.items) {
+            val lang = (if (item.language == "Other") item.otherLanguage else item.language).trim()
+            val lyr = item.lyrics.trim()
+
+            if (lang.isBlank() && lyr.isBlank()) {
+                continue // Skip empty rows silently
             }
-            val lyr = rowBinding.inputLyrics.text?.toString()?.trim() ?: ""
 
-            // Clear previous errors
-            rowBinding.otherLanguageLayout.error = null
-            rowBinding.inputLyricsLayout.error = null
-
-            if (lang.isNotBlank() && lyr.isNotBlank()) {
-                lyricsMap[lang] = lyr
-            } else if (lang.isNotBlank() || lyr.isNotBlank() || (selectedLanguage == "Other" && (lang.isNotBlank() || lyr.isNotBlank())) ) {
-                // This condition catches partially filled rows.
-                if (lang.isBlank() && selectedLanguage == "Other") {
-                    rowBinding.otherLanguageLayout.error = "Language required"
-                    isValidLyrics = false
-                }
-                if (lyr.isBlank()) {
-                    rowBinding.inputLyricsLayout.error = "Lyrics required"
-                    isValidLyrics = false
-                }
+            if (lang.isBlank() || lyr.isBlank()) {
+                Toast.makeText(this, "Found an incomplete language/lyrics pair.", Toast.LENGTH_SHORT).show()
+                return
             }
-        }
 
-        if (!isValidLyrics) {
-            return // Stop if any row is incomplete
-        }
-
-        if (lyricsMap.isEmpty()) {
-            if (binding.lyricsContainer.childCount > 0) {
-                val firstRow = binding.lyricsContainer.getChildAt(0)
-                val firstRowBinding = ItemLanguageInputBinding.bind(firstRow)
-                firstRowBinding.inputLyricsLayout.error = "At least one complete language/lyrics pair is required"
-            } else {
-                // This case should ideally not be hit if there's always at least one row, but as a fallback:
-                Toast.makeText(this, "At least one complete language/lyrics pair is required", Toast.LENGTH_SHORT).show()
+            if (!usedLanguages.add(lang.lowercase(Locale.ROOT))) {
+                Toast.makeText(this, "Duplicate language '$lang' found. Please remove it.", Toast.LENGTH_LONG).show()
+                return
             }
-            return
-        }
 
-        val formattedLyricsMap = mutableMapOf<String, String>()
-        lyricsMap.forEach { (lang, lyr) ->
             formattedLyricsMap[lang] = convertMarkdownToHtml(lyr)
+        }
+
+
+        if (formattedLyricsMap.isEmpty()) {
+            Toast.makeText(this, "At least one complete language/lyrics pair is required", Toast.LENGTH_SHORT).show()
+            return
         }
 
         val songToSave = currentSong?.copy(
@@ -352,26 +295,19 @@ class AddEditSongActivity : AppCompatActivity() {
 
     private fun convertMarkdownToHtml(markdown: String): String {
         var html = markdown.replace("\n", "<br>")
-        // Combined: *_text_* or _*text*_
         html = html.replace(Regex("(?s)\\*_((?:.|\\n)+?)\\_\\*"), "<b><u>$1</u></b>")
         html = html.replace(Regex("(?s)_\\*((?:.|\\n)+?)\\*_"), "<b><u>$1</u></b>")
-        // Bold: *text*
         html = html.replace(Regex("(?s)\\*((?:.|\\n)+?)\\*"), "<b>$1</b>")
-        // Underline: _text_
         html = html.replace(Regex("(?s)_((?:.|\\n)+?)_"), "<u>$1</u>")
         return html
     }
 
     private fun convertHtmlToMarkdown(html: String): String {
         var markdown = html
-        // Combined: <b><u>text</u></b> or <u><b>text</b></u>
         markdown = markdown.replace(Regex("(?i)<b><u>((?:.|\\n)+?)</u></b>"), "*_$1_*")
         markdown = markdown.replace(Regex("(?i)<u><b>((?:.|\\n)+?)</b></u>"), "*_$1_*")
-        // Bold: <b>text</b>
         markdown = markdown.replace(Regex("(?i)<b>((?:.|\\n)+?)</b>"), "*$1*")
-        // Underline: <u>text</u>
         markdown = markdown.replace(Regex("(?i)<u>((?:.|\\n)+?)</u>"), "_$1_")
-        // Line breaks
         markdown = markdown.replace(Regex("(?i)<br/?>"), "\n")
         return markdown
     }
@@ -380,3 +316,4 @@ class AddEditSongActivity : AppCompatActivity() {
         return if (this.isBlank()) null else this
     }
 }
+

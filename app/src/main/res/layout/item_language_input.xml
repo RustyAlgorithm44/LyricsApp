@@ -8,6 +8,15 @@
     android:paddingTop="4dp"
     android:paddingBottom="4dp">
 
+    <ImageView
+        android:id="@+id/drag_handle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_menu"
+        android:contentDescription="Drag to reorder"
+        android:scaleType="center"
+        android:background="?attr/selectableItemBackgroundBorderless"/>
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"

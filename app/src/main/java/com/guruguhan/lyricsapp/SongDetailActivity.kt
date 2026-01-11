@@ -76,7 +76,7 @@ class SongDetailActivity : AppCompatActivity() {
             viewModel.getSongById(songId).collectLatest { currentSong ->
                 if (currentSong != null) {
                     song = currentSong
-                    languages = currentSong.lyrics.keys.toList().sorted()
+                    languages = currentSong.lyrics.keys.toList()
                     currentLanguageIndex = 0 // Reset index when song changes
                     updateUi(currentSong)
                 }

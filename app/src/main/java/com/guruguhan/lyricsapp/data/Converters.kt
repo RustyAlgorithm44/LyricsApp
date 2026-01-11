@@ -3,14 +3,15 @@ package com.guruguhan.lyricsapp.data
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.LinkedHashMap
 
 class DataTypeConverters {
     private val gson = Gson()
 
     @TypeConverter
     fun fromString(value: String): Map<String, String> {
-        val mapType = object : TypeToken<Map<String, String>>() {}.type
-        return gson.fromJson(value, mapType)
+        val mapType = object : TypeToken<LinkedHashMap<String, String>>() {}.type
+        return gson.fromJson(value, mapType) ?: LinkedHashMap()
     }
 
     @TypeConverter
